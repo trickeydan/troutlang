@@ -1,3 +1,3 @@
-# Interpreter
+# Trout Interpreter
 
-The Haskell runtime interpreter for Trout.
+The interpreter for Trout.
