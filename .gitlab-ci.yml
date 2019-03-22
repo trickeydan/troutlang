@@ -1,0 +1,52 @@
+image: haskell
+
+stages:
+  - build
+  - test
+
+before_script:
+  - "export STACK_ROOT=$(pwd)/.stack"
+
+build_stack:
+  stage: build
+  cache:
+    paths:
+      - .stack
+  script:
+    - "stack build --pedantic --copy-bins --local-bin-path .bins"
+  artifacts:
+    paths:
+      - .bins
+
+test_stack:
+  stage: test
+  cache:
+    policy: pull
+  script:
+    - "stack test --coverage"
+    - "cp -r $(stack path --local-hpc-root) .codecov"
+  artifacts:
+    paths:
+      - .codecov
+
+test_hlint:
+  stage: test
+  cache:
+    policy: pull
+  script:
+    - "apt-get update && apt-get install hlint -y"
+    - "hlint -r ."
+  artifacts:
+    paths:
+      - report.html
+    when: on_failure
+  allow_failure: true
+
+test_pawel:
+  stage: test
+  cache:
+    policy: pull
+  script:
+    - "cp .bins/trout-exe cw-automarker/myinterpreter"
+    - "cd cw-automarker && ./auto"
+  allow_failure: true
