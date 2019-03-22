@@ -1,46 +1,30 @@
-module Language.Trout.Grammar
-  (
-  ) where
+module Language.Trout.Grammar where
 
-data InfixOperator = 
-    AppendStream -- ++
-  | AppendFrame -- , 
-  | IntAdd -- +
-  | IntSubtract -- -
-  | IntDivide -- /
-  | IntMultiply -- *
-  | AssignmentOperator -- =
-  | Equals -- ==
-  | NotEquals -- !=
-  deriving (Show)
+data StreamExpr = 
+  Stream [FrameExpr]
+  | AppendStream StreamExpr StreamExpr
+
+data FrameExpr =
+  Frame [IntExpr]
+  | AppendFrame FrameExpr FrameExpr
+
+data IntExpr =
+  IntNum Int
+  | IntAdd IntExpr IntExpr
+  | IntSubtract IntExpr IntExpr
+  | IntDivide IntExpr IntExpr
+  | IntMultiply IntExpr IntExpr
 
 data Identifier =
-   Variable String -- bees
-  | InputIndex Int -- [0]
-  | OutputIndex Int -- <0>
+  Variable String
+  | InputIndex IntExpr
+  | ReturnIndex IntExpr
 
-data Expr =
-    Int
-  | IntAdd Expr Expr
-  | IntSubtract Expr Expr
-  | IntDivide Expr Expr
-  | IntMultiply Expr Expr
-
--- Something that can be evaluated.
 data Condition =
-    Equality Int Int
-  | NotEqual Int Int
+  Equals IntExpr IntExpr
+  | NotEquals IntExpr IntExpr
 
 data Statement = 
-    Iterator { 
-      iteratorIdentifier :: Identifier,
-      iteratorStatementList :: [Statement] 
-    }
-  | Assignment {
-      assignmentIdentifier :: Identifier,
-      assignmentExpr :: Expr
-    }
-  | ConditionalIf {
-      condition :: Condition,
-      statement :: Statement
-    }
+  Iterator Identifier [Statement]
+  | Assignment Identifier IntExpr
+  | ConditionalIf Condition Statement
