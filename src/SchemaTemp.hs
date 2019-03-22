@@ -1,6 +1,6 @@
 module SchemaTemp where
 
-data InfixOperators
+data InfixOperator
   = AppendStream
   | IntAdd
   | IntSubstract
@@ -11,13 +11,15 @@ data InfixOperators
   | NotEquals
   deriving (Show)
 
-data Identifier =
-  Identifier String
+data Identifier
+  = Identifier String
+  | InputIndex
+  | OutputIndex
 
-data InputIndex =
+newtype InputIndex =
   InputIndex Int
 
-data OutputIndex =
+newtype OutputIndex =
   OutputIndex Int
 
 data Statement
