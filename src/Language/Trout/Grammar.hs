@@ -2,8 +2,8 @@ module Language.Trout.Grammar
   (
   ) where
 
-data InfixOperator
-  = AppendStream -- ++
+data InfixOperator = 
+    AppendStream -- ++
   | AppendFrame -- , 
   | IntAdd -- +
   | IntSubtract -- -
@@ -14,33 +14,33 @@ data InfixOperator
   | NotEquals -- !=
   deriving (Show)
 
-data Identifier
-  = Variable String -- bees
+data Identifier =
+   Variable String -- bees
   | InputIndex Int -- [0]
   | OutputIndex Int -- <0>
 
-data Expr
-  = Int
-  | IntAdd Expr
-           Expr
-  | IntSubtract Expr
-                Expr
-  | IntDivide Expr
-              Expr
-  | IntMultiply Expr
-                Expr
+data Expr =
+    Int
+  | IntAdd Expr Expr
+  | IntSubtract Expr Expr
+  | IntDivide Expr Expr
+  | IntMultiply Expr Expr
 
 -- Something that can be evaluated.
-data Condition
-  = Equality Int
-             Int
-  | NotEqual Int
-             Int
+data Condition =
+    Equality Int Int
+  | NotEqual Int Int
 
-data Statement
-  = Iterator { iteratorIdentifier :: Identifier
-             , iteratorStatementList :: [Statement] }
-  | Assignment { assignmentIdentifier :: Identifier
-               , assignmentExpr :: Expr }
-  | ConditionalIf { condition :: Condition
-                  , statement :: Statement }
+data Statement = 
+    Iterator { 
+      iteratorIdentifier :: Identifier,
+      iteratorStatementList :: [Statement] 
+    }
+  | Assignment {
+      assignmentIdentifier :: Identifier,
+      assignmentExpr :: Expr
+    }
+  | ConditionalIf {
+      condition :: Condition,
+      statement :: Statement
+    }
