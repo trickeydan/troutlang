@@ -6,7 +6,7 @@ data InfixOperator
   = AppendStream -- ++
   | AppendFrame -- , 
   | IntAdd -- +
-  | IntSubstract -- -
+  | IntSubtract -- -
   | IntDivide -- /
   | IntMultiply -- *
   | AssignmentOperator -- =
@@ -15,13 +15,22 @@ data InfixOperator
   deriving (Show)
 
 data Identifier
-  = Variable String
-  | InputIndex Int
-  | OutputIndex Int
+  = Variable String -- bees
+  | InputIndex Int -- [0]
+  | OutputIndex Int -- <0>
 
-data Expr =
-  Expr
+data Expr
+  = Int
+  | IntAdd Expr
+           Expr
+  | IntSubtract Expr
+                Expr
+  | IntDivide Expr
+              Expr
+  | IntMultiply Expr
+                Expr
 
+-- Something that can be evaluated.
 data Condition
   = Equality Int
              Int
