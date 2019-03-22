@@ -21,6 +21,8 @@ build_stack:
 test_stack:
   stage: test
   cache:
+    paths:
+      - .stack
     policy: pull
   script:
     - "stack test --coverage"
