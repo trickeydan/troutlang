@@ -28,3 +28,5 @@ data Statement =
   Iterator Identifier [Statement]
   | Assignment Identifier IntExpr
   | ConditionalIf Condition Statement
+
+type Program = [Statement]
