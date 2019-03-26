@@ -32,6 +32,6 @@ updateVarInStore (x:xs) name value found new
         newVarStorage = (name, value):new
 updateVarInStore [] name value found new
     | found = new
-    | not found = newVarStorage
+    | otherwise = newVarStorage
     where
         newVarStorage = (name, value):new
