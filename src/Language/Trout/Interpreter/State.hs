@@ -12,7 +12,9 @@ getVarState :: TroutState -> String -> Maybe Int
 getVarState (TroutState state) = getVarInStore state
 
 setVarState :: TroutState -> String -> Int -> TroutState
-setVarState _ _ _ = TroutState []
+setVarState (TroutState state) name value = TroutState newstore
+    where 
+        newstore = updateVarInStore state name value False []
 
 -- VarStorage Functions
 
@@ -22,10 +24,14 @@ getVarInStore (x:xs) varname
     | fst x == varname = Just (snd x)
     | otherwise = getVarInStore xs varname
 
-updateVarInStore :: VarStorage -> String -> Int -> VarStorage -> VarStorage
-updateVarInStore (x:xs) name value new
-    | fst x == name = updateVarInStore xs name value newVarStorage
-    | otherwise = updateVarInStore xs name value new
+updateVarInStore :: VarStorage -> String -> Int -> Bool -> VarStorage -> VarStorage
+updateVarInStore (x:xs) name value found new
+    | fst x == name = updateVarInStore xs name value True newVarStorage
+    | otherwise = updateVarInStore xs name value False new
     where
         newVarStorage = (name, value):new
-updateVarInStore [] _ _ new = new
+updateVarInStore [] name value found new
+    | found = new
+    | not found = newVarStorage
+    where
+        newVarStorage = (name, value):new

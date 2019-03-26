@@ -2,8 +2,19 @@ import Test.Hspec
 import Test.QuickCheck
 import Control.Exception (evaluate)
 
+import Language.Trout.Interpreter.State
+
 main :: IO ()
 main = hspec $ do
-  describe "Prelude.head" $ do
-    it "returns the first element of a list" $ do
-      head [23 ..] `shouldBe` (23 :: Int)
+  describe "Interpreter.State.VarStorage" $ do
+    it "can store and retrieve Vars" $ do
+      retrieve var `shouldBe` (24 :: Int) where
+        store = updateVarInStore [] "bar" 24 False []
+
+        var :: Maybe Int
+        var = getVarInStore store "bar"
+
+        retrieve  :: Maybe Int -> Int
+        retrieve  (Just x) = x
+        retrieve  Nothing = -1
+            
