@@ -10,7 +10,7 @@ data FrameExpr =
 
 data IntExpr =
   IntNum Int
-  | IntIdent Identifier
+  | IntIdentifier Identifier
   | IntAdd IntExpr IntExpr
   | IntSubtract IntExpr IntExpr
   | IntDivide IntExpr IntExpr
