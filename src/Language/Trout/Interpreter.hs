@@ -21,4 +21,4 @@ evalPrintExpr :: IntExpr -> IO ()
 evalPrintExpr expr = putStrLn $ show $ reduceIntExpr expr
 
 evalPrintIdentifier :: Identifier -> IO ()
-evalPrintIdentifier expr = putStrLn $ show $ reduceIdentifier ident
+evalPrintIdentifier ident = putStrLn $ show $ reduceIdentifier ident
