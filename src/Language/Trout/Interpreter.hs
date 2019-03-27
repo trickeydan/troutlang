@@ -35,14 +35,17 @@ evalAssignment (ReturnIndex index) expr =  troutPrint "Indices are currently uni
 
 evalAssignmentToVariable :: String -> IntExpr -> TroutState ()
 evalAssignmentToVariable name expr = do
-    let value = reduceIntExpr expr
+    value <- reduceIntExpr expr
     troutSetVar name value
-    troutDumpState
 
 -- Print Statements
 
 evalPrintExpr :: IntExpr -> TroutState ()
-evalPrintExpr expr = troutPrint $ reduceIntExpr expr
+evalPrintExpr expr = do
+    val <- reduceIntExpr expr
+    troutPrint val
 
 evalPrintIdentifier :: Identifier -> TroutState ()
-evalPrintIdentifier ident = troutPrint $ reduceIdentifier ident
+evalPrintIdentifier ident = do
+    val <- reduceIdentifier ident
+    troutPrint val
