@@ -3,7 +3,7 @@ module Language.Trout.Interpreter.Store where
 type Var = (String, Int)
 type VarStorage = [Var]
 
-newtype TroutStore = TroutStore VarStorage
+newtype TroutStore = TroutStore VarStorage deriving Show
 
 -- TroutStore functions
 
