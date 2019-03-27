@@ -29,6 +29,8 @@ where
         return (val1 * val2)
 
     reduceIdentifier :: Identifier -> TroutState Int
-    reduceIdentifier (Variable _) = return 0 -- Requires state
+    reduceIdentifier (Variable name) = do
+        val <- troutGetVar name
+        return val
     reduceIdentifier (InputIndex _) = return 0 -- Requires state
     reduceIdentifier (ReturnIndex _) = return 0 -- Requires state
