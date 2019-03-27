@@ -2,7 +2,8 @@
 
 module Language.Trout.Parser (
   identifier,
-  intExpr
+  intExpr,
+  condition
 ) where
 
 import Text.Megaparsec
@@ -65,3 +66,16 @@ intExpr = makeExprParser intExprTerm opTable
         [ inf "-" IntSubtract]
       ]
 
+condition :: Parser Condition
+condition = lexeme $ try equals <|> notEquals
+  where
+    equals = do
+      left <- intExpr
+      symbol "=="
+      right <- intExpr
+      return $ Equals left right
+    notEquals = do
+      left <- intExpr
+      symbol "!="
+      right <- intExpr
+      return $ NotEquals left right
