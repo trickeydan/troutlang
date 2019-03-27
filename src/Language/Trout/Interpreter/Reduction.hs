@@ -15,6 +15,10 @@ where
         val1 <- reduceIntExpr expr1
         val2 <- reduceIntExpr expr2
         return (val1 + val2)
+    reduceIntExpr (IntPositive expr) = reduceIntExpr expr
+    reduceIntExpr (IntNegative expr) = do
+        val <- reduceIntExpr expr
+        return (- val)
     reduceIntExpr (IntSubtract expr1 expr2) = do
         val1 <- reduceIntExpr expr1
         val2 <- reduceIntExpr expr2
