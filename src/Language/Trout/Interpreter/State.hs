@@ -12,8 +12,8 @@ troutPrint = liftIO . print
 
 troutDumpState :: TroutState ()
 troutDumpState = do
-    state <- get
-    troutPrint state
+    tstate <- get
+    troutPrint tstate
 
 troutSetVar :: String -> Int -> TroutState ()
 troutSetVar name value = do
@@ -22,6 +22,6 @@ troutSetVar name value = do
 
 troutGetVar :: String -> TroutState Int
 troutGetVar name = do
-    state <- get
-    let val = getVarFromStore state name
+    tstate <- get
+    let val = getVarFromStore tstate name
     return val
