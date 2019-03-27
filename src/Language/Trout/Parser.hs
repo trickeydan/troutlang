@@ -42,4 +42,19 @@ identifier = lexeme $ (
     returnIndex = ReturnIndex <$> between (symbol "<") (symbol ">") (intExpr <?> "output stream index")
 
 intExpr :: Parser IntExpr
-intExpr = IntNum <$> (lexeme $ L.decimal)
+intExpr = makeExprParser exprTerm opTable
+  where
+    exprTerm = choice
+      [ between (symbol "(") (symbol ")") intExpr
+      , IntNum <$> lexeme L.decimal
+      , IntIdentifier <$> identifier ]
+    opTable = [
+        [ pref "+" IntPositive
+        , pref "-" IntNegative ],
+        [ inf "/" IntDivide ],
+        [ inf "*" IntMultiply ],
+        [ inf "+" IntAdd ],
+        [ inf "-" IntSubtract]
+      ]
+    pref c f = Prefix (f <$ symbol c)
+    inf c f = InfixL (f <$ symbol c)
