@@ -30,8 +30,8 @@ evalStatement (PrintIdentifier ident) = evalPrintIdentifier ident
 
 evalAssignment :: Identifier -> IntExpr -> TroutState ()
 evalAssignment (Variable name) expr = evalAssignmentToVariable name expr
-evalAssignment (InputIndex index) expr = troutPrint "Indices are currently unimplemented."
-evalAssignment (ReturnIndex index) expr =  troutPrint "Indices are currently unimplemented."
+evalAssignment (InputIndex _) _ = troutPrint "Indices are currently unimplemented."
+evalAssignment (ReturnIndex _) _ =  troutPrint "Indices are currently unimplemented."
 
 evalAssignmentToVariable :: String -> IntExpr -> TroutState ()
 evalAssignmentToVariable name expr = do
