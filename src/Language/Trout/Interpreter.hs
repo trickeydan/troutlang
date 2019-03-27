@@ -1,6 +1,7 @@
 module Language.Trout.Interpreter where
 
 import Language.Trout.Interpreter.Reduction
+import Language.Trout.Interpreter.Store
 import Language.Trout.Interpreter.State
 import Language.Trout.Grammar
 

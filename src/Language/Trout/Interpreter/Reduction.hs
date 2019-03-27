@@ -16,11 +16,11 @@ where
     reduceIntExpr (IntMultiply expr1 expr2) = reduceIntExpr expr1 * reduceIntExpr expr2
 
     reduceIdentifier :: Identifier -> Int
-    reduceIdentifier (Variable name) = 0
-    reduceIdentifier (InputIndex expr) = 0
+    reduceIdentifier (Variable name) = 0 -- Requires state
+    reduceIdentifier (InputIndex expr) = 0 -- Requires state
         where
             val = reduceIntExpr expr
-    reduceIdentifier (ReturnIndex expr) = 0
+    reduceIdentifier (ReturnIndex expr) = 0 -- Requires state
         where
             val = reduceIntExpr expr
         
