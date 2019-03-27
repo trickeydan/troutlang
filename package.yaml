@@ -20,6 +20,7 @@ dependencies:
 - base >= 4.7 && < 5
 - hspec
 - megaparsec
+- parser-combinators
 - text
 - mtl
 - QuickCheck
