@@ -3,6 +3,7 @@ module Main where
 import Language.Trout.Interpreter
 import Language.Trout.Grammar
 
+program :: Program
 program = 
     PrintExpr (IntNum 10): 
     PrintExpr (IntAdd (IntNum 10) (IntNum 12)):

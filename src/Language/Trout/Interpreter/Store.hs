@@ -24,7 +24,7 @@ getVarInVarStore (x:xs) varname
     | otherwise = getVarInVarStore xs varname
 
 updateVarInVarStore :: VarStorage -> String -> Int -> Bool -> VarStorage -> VarStorage
-updateVarInStore (x:xs) name value found new
+updateVarInVarStore (x:xs) name value found new
     | fst x == name = updateVarInVarStore xs name value True newVarStorage
     | otherwise = updateVarInVarStore xs name value found new
     where
