@@ -29,10 +29,10 @@ symbol :: Text -> Parser Text
 symbol = L.symbol spaceConsumer
 
 identifier :: Parser Identifier
-identifier = lexeme $ (
-  variable <|>
-  inputIndex <|>
-  returnIndex )
+identifier = lexeme $ choice
+  [ variable
+  , inputIndex
+  , returnIndex ]
   where
     variable :: Parser Identifier
     variable = Variable <$> ((:) <$> letterChar <*> many alphaNumChar <?> "variable")
