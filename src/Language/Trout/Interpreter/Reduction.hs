@@ -10,6 +10,8 @@ where
     reduceIntExpr :: IntExpr -> Int
     reduceIntExpr (IntNum n) = n
     reduceIntExpr (IntIdentifier ident) = reduceIdentifier ident
+    reduceIntExpr (IntPositive e) = reduceIntExpr e
+    reduceIntExpr (IntNegative e) = - reduceIntExpr e
     reduceIntExpr (IntAdd expr1 expr2) = reduceIntExpr expr1 + reduceIntExpr expr2
     reduceIntExpr (IntSubtract expr1 expr2) = reduceIntExpr expr1 - reduceIntExpr expr2
     reduceIntExpr (IntDivide expr1 expr2) = reduceIntExpr expr1 `div` reduceIntExpr expr2
