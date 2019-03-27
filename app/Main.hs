@@ -4,6 +4,7 @@ import Language.Trout.Interpreter
 import Language.Trout.Interpreter.Store
 import Language.Trout.Grammar
 import Control.Monad.State
+import Control.Monad (void)
 
 program :: Program
 program = 
@@ -17,4 +18,4 @@ program =
 
 
 main :: IO ()
-main = runStateT (runProgram program) (TroutStore []) >> return ()
+main = void $ runStateT (runProgram program) (TroutStore [])
