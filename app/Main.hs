@@ -1,7 +1,9 @@
 module Main where
 
 import Language.Trout.Interpreter
+import Language.Trout.Interpreter.Store
 import Language.Trout.Grammar
+import Control.Monad.State
 
 program :: Program
 program = 
@@ -11,4 +13,4 @@ program =
 
 
 main :: IO ()
-main = evalProgram program
+main = runStateT (runProgram program) (TroutStore []) >> return ()
