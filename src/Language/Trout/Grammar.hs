@@ -10,6 +10,7 @@ data FrameExpr =
 
 data IntExpr =
   IntNum Int
+  | IntIdentifier Identifier
   | IntAdd IntExpr IntExpr
   | IntSubtract IntExpr IntExpr
   | IntDivide IntExpr IntExpr
@@ -28,5 +29,7 @@ data Statement =
   Iterator Identifier [Statement]
   | Assignment Identifier IntExpr
   | ConditionalIf Condition Statement
+  | PrintExpr IntExpr
+  | PrintIdentifier Identifier
 
 type Program = [Statement]

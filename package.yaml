@@ -21,6 +21,7 @@ dependencies:
 - hspec
 - megaparsec
 - text
+- mtl
 - QuickCheck
 
 library:
