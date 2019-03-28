@@ -9,13 +9,13 @@ type StoreEntry = (String, VarValue)
 newtype TroutStore = TroutStore [StoreEntry] deriving Show
 
 getVar :: TroutStore -> String -> VarType -> VarValue
-getVar (TroutStore store) name vartype = getValFromList store name vartype
+getVar (TroutStore store) name vartype = getValList store name vartype
     where
-        getValFromList :: [StoreEntry] -> String -> VarType -> VarValue
-        getValFromList [] name _ = error ("Undefined variable: " ++ name)
-        getValFromList (x:xs) name vartype
+        getValList :: [StoreEntry] -> String -> VarType -> VarValue
+        getValList [] name _ = error ("Undefined variable: " ++ name)
+        getValList (x:xs) name vartype
             | fst x == name = confirmType vartype (snd x) 
-            | otherwise = getValFromList xs name vartype
+            | otherwise = getValList xs name vartype
             where
                 confirmType :: VarType -> VarValue -> VarValue
                 confirmType StreamType (StreamVal s) = StreamVal s
@@ -24,27 +24,18 @@ getVar (TroutStore store) name vartype = getValFromList store name vartype
                 confirmType expected actual = error ("Type mismatch: expecting " ++ show expected ++ "but got " ++ show actual)
 
 setVar :: TroutStore -> String -> VarValue -> TroutStore
-setVar e _ _ = e
-
-
-
-
--- TroutStore functions
-
--- setVarInStore :: TroutStore -> String -> Int -> TroutStore
--- setVarInStore (TroutStore state) name value = TroutStore newstore
---     where 
---         newstore = updateVarInVarStore state name value False []
-
-
--- updateVarInVarStore :: VarStorage -> String -> Int -> Bool -> VarStorage -> VarStorage
--- updateVarInVarStore (x:xs) name value found new
---     | fst x == name = updateVarInVarStore xs name value True newVarStorage
---     | otherwise = updateVarInVarStore xs name value found new
---     where
---         newVarStorage = (name, value):new
--- updateVarInVarStore [] name value found new
---     | found = new
---     | otherwise = newVarStorage
---     where
---         newVarStorage = (name, value):new
+setVar (TroutStore store) name value = TroutStore $ setValList store name value False []
+    where
+        setValList :: [StoreEntry] -> String -> VarValue -> Bool -> [StoreEntry] -> [StoreEntry]
+        setValList [] name value found new
+            | found = new
+            | otherwise = newVarStorage
+            where
+                -- Note: This does not do a type check before setting the variable.
+                newVarStorage = (name, value):new
+        setValList (x:xs) name value found new
+            | fst x == name = setValList xs name value True newVarStorage
+            | otherwise = setValList xs name value found new
+            where
+                -- Note: This does not do a type check before setting the variable.
+                newVarStorage = (name, value):new

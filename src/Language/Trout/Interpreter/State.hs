@@ -10,10 +10,10 @@ troutPrint = liftIO . print
 
 -- Data Things
 
--- troutDumpState :: TroutState ()
--- troutDumpState = do
---     tstate <- get
---     troutPrint tstate
+troutDumpState :: TroutState ()
+troutDumpState = do
+    tstate <- get
+    troutPrint tstate
 
 -- troutSetVar :: String -> Int -> TroutState ()
 -- troutSetVar name value = do
