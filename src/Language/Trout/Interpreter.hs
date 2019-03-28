@@ -1,6 +1,9 @@
-module Language.Trout.Interpreter where
+module Language.Trout.Interpreter 
+(
+    runProgram
+)
+where
 
-import Language.Trout.Interpreter.Reduction
 import Language.Trout.Interpreter.State
 import Language.Trout.Grammar
 
@@ -16,16 +19,8 @@ evalProgram (x:xs) = do
     evalProgram xs
 
 evalStatement :: Statement -> TroutState ()
-evalStatement (Iterator _ _) = troutPrint "Iteration is currently unimplemented."
 evalStatement (Assignment _ _) = troutPrint "Assignment is currently unimplemented."
-evalStatement (ConditionalIf _ _ ) = troutPrint "If is currently unimplemented."
-evalStatement (PrintExpr intExpr) = evalPrintExpr intExpr
-evalStatement (PrintIdentifier ident) = evalPrintIdentifier ident
-
--- Print Statements
-
-evalPrintExpr :: IntExpr -> TroutState ()
-evalPrintExpr expr = troutPrint $ reduceIntExpr expr
-
-evalPrintIdentifier :: Identifier -> TroutState ()
-evalPrintIdentifier ident = troutPrint $ reduceIdentifier ident
+evalStatement (NullAssignment _) = troutPrint "Null Assignment is currently unimplemented."
+evalStatement (ConditionalIf _ _ ) = troutPrint "ConditionalIf is currently unimplemented."
+evalStatement (Print _) = troutPrint "Print is currently unimplemented."
+evalStatement (Break) = troutPrint "Breal is currently unimplemented."

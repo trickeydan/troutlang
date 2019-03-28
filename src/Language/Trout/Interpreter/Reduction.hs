@@ -6,18 +6,33 @@ module Language.Trout.Interpreter.Reduction
 where
 
     import Language.Trout.Grammar
+    import Language.Trout.Interpreter.State
 
-    reduceIntExpr :: IntExpr -> Int
-    reduceIntExpr (IntNum n) = n
+    reduceIntExpr :: IntExpr -> TroutState Int
+    reduceIntExpr (IntNum n) = return n
     reduceIntExpr (IntIdentifier ident) = reduceIdentifier ident
-    reduceIntExpr (IntPositive e) = reduceIntExpr e
-    reduceIntExpr (IntNegative e) = - reduceIntExpr e
-    reduceIntExpr (IntAdd expr1 expr2) = reduceIntExpr expr1 + reduceIntExpr expr2
-    reduceIntExpr (IntSubtract expr1 expr2) = reduceIntExpr expr1 - reduceIntExpr expr2
-    reduceIntExpr (IntDivide expr1 expr2) = reduceIntExpr expr1 `div` reduceIntExpr expr2
-    reduceIntExpr (IntMultiply expr1 expr2) = reduceIntExpr expr1 * reduceIntExpr expr2
+    reduceIntExpr (IntAdd expr1 expr2) = do
+        val1 <- reduceIntExpr expr1
+        val2 <- reduceIntExpr expr2
+        return (val1 + val2)
+    reduceIntExpr (IntPositive expr) = reduceIntExpr expr
+    reduceIntExpr (IntNegative expr) = do
+        val <- reduceIntExpr expr
+        return (- val)
+    reduceIntExpr (IntSubtract expr1 expr2) = do
+        val1 <- reduceIntExpr expr1
+        val2 <- reduceIntExpr expr2
+        return (val1 - val2)
+    reduceIntExpr (IntDivide expr1 expr2) = do
+        val1 <- reduceIntExpr expr1
+        val2 <- reduceIntExpr expr2
+        return (val1 `div` val2)
+    reduceIntExpr (IntMultiply expr1 expr2) = do
+        val1 <- reduceIntExpr expr1
+        val2 <- reduceIntExpr expr2
+        return (val1 * val2)
 
-    reduceIdentifier :: Identifier -> Int
-    reduceIdentifier (Variable _) = 0 -- Requires state
-    reduceIdentifier (InputIndex _) = 0 -- Requires state
-    reduceIdentifier (ReturnIndex _) = 0 -- Requires state
+    reduceIdentifier :: Identifier -> TroutState Int
+    reduceIdentifier (Variable name) = troutGetVar name
+    reduceIdentifier (InputIndex _) = return 0 -- Requires state
+    reduceIdentifier (ReturnIndex _) = return 0 -- Requires state
