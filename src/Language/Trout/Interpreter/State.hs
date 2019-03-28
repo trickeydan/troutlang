@@ -25,3 +25,7 @@ troutGetVar name vartype = do
     store <- get
     let val = getVar store name vartype
     return val
+
+troutGetIntFromVarValue:: VarValue -> Int
+troutGetIntFromVarValue (IntVal val) = val
+troutGetIntFromVarValue _ = error "TypeError: Expected Type Int"
