@@ -10,18 +10,18 @@ troutPrint = liftIO . print
 
 -- Data Things
 
-troutDumpState :: TroutState ()
-troutDumpState = do
-    tstate <- get
-    troutPrint tstate
+-- troutDumpState :: TroutState ()
+-- troutDumpState = do
+--     tstate <- get
+--     troutPrint tstate
 
-troutSetVar :: String -> Int -> TroutState ()
-troutSetVar name value = do
-    before <- get
-    put $ setVarInStore before name value
+-- troutSetVar :: String -> Int -> TroutState ()
+-- troutSetVar name value = do
+--     before <- get
+--     put $ setVarInStore before name value
 
-troutGetVar :: String -> TroutState Int
-troutGetVar name = do
-    tstate <- get
-    let val = getVarFromStore tstate name
-    return val
+-- troutGetVar :: String -> TroutState Int
+-- troutGetVar name = do
+--     tstate <- get
+--     let val = getVarFromStore tstate name
+--     return val

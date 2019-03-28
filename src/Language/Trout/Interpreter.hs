@@ -1,14 +1,14 @@
 module Language.Trout.Interpreter 
 (
-    runProgram
+    executeProgram
 )
 where
 
 import Language.Trout.Interpreter.State
 import Language.Trout.Grammar
 
-runProgram :: Program -> TroutState ()
-runProgram program = do
+executeProgram :: Program -> TroutState ()
+executeProgram program = do
     evalProgram program
     return ()
 

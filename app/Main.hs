@@ -9,8 +9,9 @@ import Control.Monad (void)
 program :: Program
 program = 
     [
+        Print (IExpr (IntNum 10))
     ]
 
 
 main :: IO ()
-main = void $ runStateT (runProgram program) (TroutStore [])
+main = void $ runStateT (executeProgram program) (TroutStore [])
