@@ -4,6 +4,7 @@ module Language.Trout.Parser (
   identifier,
   intExpr,
   frameExpr,
+  streamExpr,
   expr,
   condition
 ) where
@@ -78,11 +79,23 @@ frameExpr = makeExprParser exprTerm opTable
         [ inf "," AppendFrame]
       ]
 
+streamExpr :: Parser StreamExpr
+streamExpr = makeExprParser exprTerm opTable
+  where
+    exprTerm :: Parser StreamExpr
+    exprTerm = choice
+      [ StreamIdentifier <$> identifier
+      , (\f -> Stream [f]) <$> frameExpr ]
+    opTable = [
+        [inf "++" AppendStream]
+      ]
+
 expr :: Parser Expr
 expr = choice
   [ VExpr <$> try identifier
   , IExpr <$> try intExpr
-  , FExpr <$> try frameExpr ]
+  , FExpr <$> try frameExpr
+  , SExpr <$> try streamExpr ]
 
 condition :: Parser Condition
 condition = lexeme $ try equals <|> notEquals
