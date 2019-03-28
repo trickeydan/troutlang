@@ -42,12 +42,6 @@ identifier = lexeme $ choice
     returnIndex :: Parser Identifier
     returnIndex = ReturnIndex <$> between (symbol "<") (symbol ">") (intExpr <?> "output stream index")
 
-intExprTerm :: Parser IntExpr
-intExprTerm = choice
-  [ between (symbol "(") (symbol ")") intExpr
-  , IntNum <$> lexeme L.decimal
-  , IntIdentifier <$> identifier ]
-
 pref :: Text -> (a -> a) -> Operator Parser a
 pref c f = Prefix (f <$ symbol c)
 
@@ -55,7 +49,7 @@ inf :: Text -> (a -> a -> a) -> Operator Parser a
 inf c f = InfixL (f <$ symbol c)
 
 intExpr :: Parser IntExpr
-intExpr = makeExprParser intExprTerm opTable
+intExpr = makeExprParser exprTerm opTable
   where
     opTable = [
         [ pref "+" IntPositive
@@ -65,6 +59,11 @@ intExpr = makeExprParser intExprTerm opTable
         [ inf "+" IntAdd ],
         [ inf "-" IntSubtract]
       ]
+    exprTerm :: Parser IntExpr
+    exprTerm = choice
+      [ between (symbol "(") (symbol ")") intExpr
+      , IntNum <$> lexeme L.decimal
+      , IntIdentifier <$> identifier ]
 
 expr :: Parser Expr
 expr = choice
