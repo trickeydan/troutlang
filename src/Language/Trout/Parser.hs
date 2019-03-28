@@ -72,8 +72,8 @@ frameExpr = makeExprParser exprTerm opTable
   where
     exprTerm :: Parser FrameExpr
     exprTerm = choice
-      [ (\i -> Frame [i]) <$> intExpr
-      , FrameIdentifier <$> identifier ]
+      [ FrameIdentifier <$> identifier
+      , (\i -> Frame [i]) <$> intExpr ]
     opTable = [
         [ inf "," AppendFrame]
       ]
