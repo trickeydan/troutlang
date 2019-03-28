@@ -30,25 +30,22 @@ data Identifier =
   | ReturnIndex IntExpr
   deriving(Eq, Show)
 
-data ExprPair =
-  StreamPair StreamExpr StreamExpr
-  | FramePair FrameExpr FrameExpr
-  | IntPair IntExpr IntExpr
-  | IdPair Identifier Identifier
+data Expr =
+  SExpr StreamExpr
+  | FExpr FrameExpr
+  | IExpr IntExpr
+  | VExpr Identifier
   deriving(Eq, Show)
 
 data Condition =
-  Equals ExprPair
-  | NotEquals ExprPair
+  Equals Expr Expr
+  | NotEquals Expr Expr
   deriving(Eq, Show)
 
 data Statement = 
-  Assignment Identifier IntExpr
+  Assignment Identifier Expr
   | ConditionalIf Condition Statement
-  | PrintStream StreamExpr
-  | PrintFrame FrameExpr
-  | PrintInt IntExpr
-  | PrintIdentifier Identifier
+  | Print Expr
   deriving(Eq, Show)
 
 type Program = [Statement]
