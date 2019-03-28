@@ -2,11 +2,14 @@ module Language.Trout.Grammar where
 
 data StreamExpr = 
   Stream [FrameExpr]
+  | StreamIdentifier Identifier
   | AppendStream StreamExpr StreamExpr
+  | Iterator StreamExpr [Statement]
   deriving(Eq, Show)
 
 data FrameExpr =
   Frame [IntExpr]
+  | FrameIdentifier Identifier
   | AppendFrame FrameExpr FrameExpr
   deriving(Eq, Show)
 
@@ -27,17 +30,24 @@ data Identifier =
   | ReturnIndex IntExpr
   deriving(Eq, Show)
 
+data Expr =
+  SExpr StreamExpr
+  | FExpr FrameExpr
+  | IExpr IntExpr
+  | VExpr Identifier
+  deriving(Eq, Show)
+
 data Condition =
-  Equals IntExpr IntExpr
-  | NotEquals IntExpr IntExpr
+  Equals Expr Expr
+  | NotEquals Expr Expr
   deriving(Eq, Show)
 
 data Statement = 
-  Iterator Identifier [Statement]
-  | Assignment Identifier IntExpr
+  Assignment Identifier Expr
+  | NullAssignment Expr
   | ConditionalIf Condition Statement
-  | PrintExpr IntExpr
-  | PrintIdentifier Identifier
+  | Print Expr
+  | Break
   deriving(Eq, Show)
 
 type Program = [Statement]
