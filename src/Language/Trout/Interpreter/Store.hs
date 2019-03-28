@@ -21,7 +21,7 @@ getVar (TroutStore store) name vartype = getValList store name vartype
                 confirmType StreamType (StreamVal s) = StreamVal s
                 confirmType FrameType (FrameVal s) = FrameVal s
                 confirmType IntType (IntVal s) = IntVal s
-                confirmType expected actual = error ("Type mismatch: expecting " ++ show expected ++ "but got " ++ show actual)
+                confirmType expected actual = error ("Type mismatch: expecting " ++ show expected ++ " but got " ++ show actual)
 
 setVar :: TroutStore -> String -> VarValue -> TroutStore
 setVar (TroutStore store) name value = TroutStore $ setValList store name value False []
