@@ -4,8 +4,8 @@ module Language.Trout.Interpreter
 )
 where
 
-import Language.Trout.Interpreter.Reduction
 import Language.Trout.Interpreter.State
+import Language.Trout.Interpreter.Type.Int
 import Language.Trout.Interpreter.Type.Stream
 import Language.Trout.Grammar
 
@@ -35,6 +35,6 @@ evalPrintStatement (SExpr expr)= do
     troutPrint st
 evalPrintStatement (FExpr expr)= troutPrint "Frame printing is currently unimplemented."
 evalPrintStatement (IExpr expr) = do
-    val <- reduceIntExpr expr
+    val <- evalIntExpr expr
     troutPrint val
 evalPrintStatement (VExpr expr)= troutPrint "Variable printing is currently unimplemented."
