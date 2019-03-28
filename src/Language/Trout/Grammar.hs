@@ -44,8 +44,10 @@ data Condition =
 
 data Statement = 
   Assignment Identifier Expr
+  | NullAssignment Expr
   | ConditionalIf Condition Statement
   | Print Expr
+  | Break
   deriving(Eq, Show)
 
 type Program = [Statement]
