@@ -51,6 +51,11 @@ inf c f = InfixL (f <$ symbol c)
 intExpr :: Parser IntExpr
 intExpr = makeExprParser exprTerm opTable
   where
+    exprTerm :: Parser IntExpr
+    exprTerm = choice
+      [ between (symbol "(") (symbol ")") intExpr
+      , IntNum <$> lexeme L.decimal
+      , IntIdentifier <$> identifier ]
     opTable = [
         [ pref "+" IntPositive
         , pref "-" IntNegative ],
@@ -59,11 +64,6 @@ intExpr = makeExprParser exprTerm opTable
         [ inf "+" IntAdd ],
         [ inf "-" IntSubtract]
       ]
-    exprTerm :: Parser IntExpr
-    exprTerm = choice
-      [ between (symbol "(") (symbol ")") intExpr
-      , IntNum <$> lexeme L.decimal
-      , IntIdentifier <$> identifier ]
 
 expr :: Parser Expr
 expr = choice
