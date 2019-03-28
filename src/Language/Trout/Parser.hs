@@ -66,16 +66,20 @@ intExpr = makeExprParser intExprTerm opTable
         [ inf "-" IntSubtract]
       ]
 
+expr :: Parser Expr
+expr = choice
+  [ IExpr <$> try intExpr ]
+
 condition :: Parser Condition
 condition = lexeme $ try equals <|> notEquals
   where
     equals = do
-      left <- intExpr
+      left <- expr
       symbol "=="
-      right <- intExpr
+      right <- expr
       return $ Equals left right
     notEquals = do
-      left <- intExpr
+      left <- expr
       symbol "!="
-      right <- intExpr
+      right <- expr
       return $ NotEquals left right
