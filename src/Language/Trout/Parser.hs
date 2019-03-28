@@ -3,6 +3,8 @@
 module Language.Trout.Parser (
   identifier,
   intExpr,
+  frameExpr,
+  expr,
   condition
 ) where
 
@@ -65,10 +67,22 @@ intExpr = makeExprParser exprTerm opTable
         [ inf "-" IntSubtract]
       ]
 
+frameExpr :: Parser FrameExpr
+frameExpr = makeExprParser exprTerm opTable
+  where
+    exprTerm :: Parser FrameExpr
+    exprTerm = choice
+      [ (\i -> Frame [i]) <$> intExpr
+      , FrameIdentifier <$> identifier ]
+    opTable = [
+        [ inf "," AppendFrame]
+      ]
+
 expr :: Parser Expr
 expr = choice
   [ VExpr <$> try identifier
-  , IExpr <$> try intExpr ]
+  , IExpr <$> try intExpr
+  , FExpr <$> try frameExpr ]
 
 condition :: Parser Condition
 condition = lexeme $ try equals <|> notEquals
