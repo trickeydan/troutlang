@@ -75,11 +75,11 @@ condition = lexeme $ try equals <|> notEquals
   where
     equals = do
       left <- expr
-      symbol "=="
+      _ <- symbol "=="
       right <- expr
       return $ Equals left right
     notEquals = do
       left <- expr
-      symbol "!="
+      _ <- symbol "!="
       right <- expr
       return $ NotEquals left right
