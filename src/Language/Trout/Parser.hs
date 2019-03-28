@@ -68,7 +68,8 @@ intExpr = makeExprParser intExprTerm opTable
 
 expr :: Parser Expr
 expr = choice
-  [ IExpr <$> try intExpr ]
+  [ VExpr <$> try identifier
+  , IExpr <$> try intExpr ]
 
 condition :: Parser Condition
 condition = lexeme $ try equals <|> notEquals
