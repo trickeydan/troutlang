@@ -15,13 +15,13 @@ troutDumpState = do
     tstate <- get
     troutPrint tstate
 
--- troutSetVar :: String -> Int -> TroutState ()
--- troutSetVar name value = do
---     before <- get
---     put $ setVarInStore before name value
+troutSetVar :: String -> VarValue -> TroutState ()
+troutSetVar name value = do
+    beforeStore <- get
+    put $ setVar beforeStore name value
 
--- troutGetVar :: String -> TroutState Int
--- troutGetVar name = do
---     tstate <- get
---     let val = getVarFromStore tstate name
---     return val
+troutGetVar :: String -> VarType -> TroutState VarValue
+troutGetVar name vartype = do
+    store <- get
+    let val = getVar store name vartype
+    return val

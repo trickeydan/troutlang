@@ -4,7 +4,9 @@ module Language.Trout.Interpreter
 )
 where
 
+import Language.Trout.Interpreter.Reduction
 import Language.Trout.Interpreter.State
+import Language.Trout.Interpreter.Type.Stream
 import Language.Trout.Grammar
 
 executeProgram :: Program -> TroutState ()
@@ -22,5 +24,17 @@ evalStatement :: Statement -> TroutState ()
 evalStatement (Assignment _ _) = troutPrint "Assignment is currently unimplemented."
 evalStatement (NullAssignment _) = troutPrint "Null Assignment is currently unimplemented."
 evalStatement (ConditionalIf _ _ ) = troutPrint "ConditionalIf is currently unimplemented."
-evalStatement (Print _) = troutPrint "Print is currently unimplemented."
-evalStatement (Break) = troutPrint "Breal is currently unimplemented."
+evalStatement (Print expr) = evalPrintStatement expr
+evalStatement (Break) = troutPrint "Break is currently unimplemented."
+
+-- Print Statement
+
+evalPrintStatement:: Expr -> TroutState ()
+evalPrintStatement (SExpr expr)= do
+    st <- evalStreamExpr expr
+    troutPrint st
+evalPrintStatement (FExpr expr)= troutPrint "Frame printing is currently unimplemented."
+evalPrintStatement (IExpr expr) = do
+    val <- reduceIntExpr expr
+    troutPrint val
+evalPrintStatement (VExpr expr)= troutPrint "Variable printing is currently unimplemented."

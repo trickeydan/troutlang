@@ -10,7 +10,7 @@ where
 
     reduceIntExpr :: IntExpr -> TroutState Int
     reduceIntExpr (IntNum n) = return n
-    reduceIntExpr (IntIdentifier ident) = reduceIdentifier ident
+    reduceIntExpr (IntIdentifier ident) = error "Bees"
     reduceIntExpr (IntAdd expr1 expr2) = do
         val1 <- reduceIntExpr expr1
         val2 <- reduceIntExpr expr2
