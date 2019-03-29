@@ -95,7 +95,7 @@ expr = choice
   [ VExpr <$> try identifier
   , IExpr <$> try intExpr
   , FExpr <$> try frameExpr
-  , SExpr <$> try streamExpr ]
+  , SExpr <$> streamExpr ]
 
 condition :: Parser Condition
 condition = lexeme $ try equals <|> notEquals
