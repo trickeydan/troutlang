@@ -6,7 +6,8 @@ module Language.Trout.Parser (
   frameExpr,
   streamExpr,
   expr,
-  condition
+  condition,
+  statement
 ) where
 
 import Text.Megaparsec
@@ -110,3 +111,28 @@ condition = lexeme $ try equals <|> notEquals
       _ <- symbol "!="
       right <- expr
       return $ NotEquals left right
+
+statement :: Parser Statement
+statement = choice
+  [ try break
+  , try nullAssignment
+  , try assignment
+  , try conditionalIf
+  , print ]
+  where
+    break = symbol "break" >> return Break
+    nullAssignment =
+      symbol "_" >>
+      symbol "=" >>
+      expr >>= return . NullAssignment
+    assignment = do
+      i <- identifier
+      _ <- symbol "="
+      e <- expr
+      return $ Assignment i e
+    conditionalIf = do
+      _ <- symbol "if"
+      c <- between (symbol "(") (symbol ")") condition
+      s <- statement
+      return $ ConditionalIf c s
+    print = expr >>= return . Print
