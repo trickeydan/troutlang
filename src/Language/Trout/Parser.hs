@@ -114,13 +114,13 @@ condition = lexeme $ try equals <|> notEquals
 
 statement :: Parser Statement
 statement = choice
-  [ try break
+  [ try breaks
   , try nullAssignment
   , try assignment
   , try conditionalIf
-  , print ]
+  , prints ]
   where
-    break = symbol "break" >> return Break
+    breaks = symbol "break" >> return Break
     nullAssignment =
       symbol "_" >>
       symbol "=" >>
@@ -135,4 +135,4 @@ statement = choice
       c <- between (symbol "(") (symbol ")") condition
       s <- statement
       return $ ConditionalIf c s
-    print = expr >>= return . Print
+    prints = expr >>= return . Print
