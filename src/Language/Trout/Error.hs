@@ -5,20 +5,16 @@ import System.Exit
 import System.Console.ANSI
 import Language.Trout.Interpreter.State
 
--- TODO: Make these functions nicer
-
 notImplemented :: String -> TroutState ()
-notImplemented message = do
-    liftIO $ setSGR[SetColor Foreground Vivid Red]
-    troutPrint $ "Not Implemented: " ++ message
-    liftIO $ setSGR[Reset]
-    troutPrint "Execution terminated."
-    liftIO $ exitFailure
+notImplemented m = troutError $ "Not Implemented: " ++ m
 
 typeError :: String -> TroutState ()
-typeError message = do
+typeError m = troutError $ "TypeError: " ++ m
+
+troutError:: String -> TroutState ()
+troutError message = do
     liftIO $ setSGR[SetColor Foreground Vivid Red]
-    troutPrint $ "Type Error: " ++ message
+    troutPrint $ message
     liftIO $ setSGR[Reset]
     troutPrint "Execution terminated."
     liftIO $ exitFailure
