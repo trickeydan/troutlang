@@ -1,4 +1,4 @@
-module Language.Trout.Interpreter.Type.Stream (evalStreamExpr) where
+module Language.Trout.Interpreter.Type.Stream where
 
 import Language.Trout.Interpreter.State
 import Language.Trout.Interpreter.Store
@@ -14,7 +14,7 @@ evalStreamExpr (AppendStream expr1 expr2) = do
 evalStreamExpr (StreamIdentifier _) =  do
     notImplemented "StreamIdentifiers are not implemented."
     return []
-evalStreamExpr (Iterator expr statements) = do
+evalStreamExpr (Iterator _ _) = do
     notImplemented "Iterators are not implemented"
     return []
 

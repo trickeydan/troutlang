@@ -14,10 +14,10 @@ getVar :: TroutStore -> String -> VarType -> VarValue
 getVar (TroutStore store) name vartype = getValList store name vartype
     where
         getValList :: [StoreEntry] -> String -> VarType -> VarValue
-        getValList [] name _ = error ("Undefined variable: " ++ name)
-        getValList (x:xs) name vartype
-            | fst x == name = confirmType vartype (snd x) 
-            | otherwise = getValList xs name vartype
+        getValList [] n _ = error ("Undefined variable: " ++ n)
+        getValList (x:xs) n vt
+            | fst x == n = confirmType vt (snd x) 
+            | otherwise = getValList xs n vt
             where
                 confirmType :: VarType -> VarValue -> VarValue
                 confirmType StreamType (StreamVal s) = StreamVal s
@@ -29,15 +29,15 @@ setVar :: TroutStore -> String -> VarValue -> TroutStore
 setVar (TroutStore store) name value = TroutStore $ setValList store name value False []
     where
         setValList :: [StoreEntry] -> String -> VarValue -> Bool -> [StoreEntry] -> [StoreEntry]
-        setValList [] name value found new
+        setValList [] n v found new
             | found = new
             | otherwise = newVarStorage
             where
                 -- Note: This does not do a type check before setting the variable.
-                newVarStorage = (name, value):new
-        setValList (x:xs) name value found new
-            | fst x == name = setValList xs name value True newVarStorage
-            | otherwise = setValList xs name value found new
+                newVarStorage = (n, v):new
+        setValList (x:xs) nam val found new
+            | fst x == nam = setValList xs nam val True newVarStorage
+            | otherwise = setValList xs nam val found new
             where
                 -- Note: This does not do a type check before setting the variable.
-                newVarStorage = (name, value):new
+                newVarStorage = (nam, val):new

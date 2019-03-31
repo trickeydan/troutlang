@@ -7,7 +7,6 @@ where
 import Language.Trout.Interpreter.State
 import Language.Trout.Interpreter.Store
 import Language.Trout.Interpreter.Type.Int
-import Language.Trout.Interpreter.Type.Stream
 import Language.Trout.Grammar
 import Language.Trout.Error
 
@@ -30,13 +29,13 @@ evalStatement (Print expr) = evalPrintStatement expr
 evalStatement (Break) = notImplemented "Break is currently unimplemented."
 
 evalExpr :: Expr -> TroutState VarValue
-evalExpr (SExpr expr) = do
+evalExpr (SExpr _) = do
     notImplemented "SExpr evaluation is unimplemented"
     return $ IntVal 0
-evalExpr (VExpr expr) = do
+evalExpr (VExpr _) = do
     notImplemented "VExpr evaluation is unimplemented"
     return $ IntVal 0
-evalExpr (FExpr expr) = do
+evalExpr (FExpr _) = do
     notImplemented "FExpr evaluation is unimplemented"
     return $ IntVal 0
 evalExpr (IExpr expr) = do
@@ -59,6 +58,6 @@ evalPrintStatement:: Expr -> TroutState ()
 evalPrintStatement (IExpr expr) = do
     val <- evalExpr (IExpr expr)
     troutPrint $ troutGetIntFromVarValue val
-evalPrintStatement(SExpr expr) = notImplemented "Print SExpr"
-evalPrintStatement(FExpr expr) = notImplemented "Print SExpr"
-evalPrintStatement(VExpr expr) = notImplemented "Print SExpr"
+evalPrintStatement(SExpr _) = notImplemented "Print SExpr"
+evalPrintStatement(FExpr _) = notImplemented "Print SExpr"
+evalPrintStatement(VExpr _) = notImplemented "Print SExpr"
