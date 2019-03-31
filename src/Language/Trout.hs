@@ -2,5 +2,7 @@ module Language.Trout (
     runTroutExecutable
 ) where
 
+import Language.Trout.Error
+
 runTroutExecutable :: IO ()
-runTroutExecutable =  notImplemented "runTroutExecutable"
+runTroutExecutable =  putStrLn "runTroutExecutable"

@@ -33,5 +33,9 @@ evalIntIdentifier :: Identifier -> TroutState Int
 evalIntIdentifier (Variable name) = do
     val <- troutGetVar name IntType
     return $ troutGetIntFromVarValue val
-evalIntIdentifier (InputIndex _) = notImplemented "Input Indices not implemented in integer expressions"
-evalIntIdentifier (ReturnIndex _) = notImplemented "Return Indices not implemented in integer expressions"
+evalIntIdentifier (InputIndex _) = do
+    notImplemented "Input Indices not implemented in integer expressions"
+    return 0
+evalIntIdentifier (ReturnIndex _) = do
+    notImplemented "Return Indices not implemented in integer expressions"
+    return 0

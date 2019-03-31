@@ -8,6 +8,7 @@ import Language.Trout.Interpreter.State
 notImplemented :: String -> TroutState ()
 notImplemented message = do
     liftIO $ setSGR[SetColor Foreground Vivid Red]
-    troutPrint $ id $ "Not Implemented: " ++ message
+    troutPrint $ "Not Implemented: " ++ message
     liftIO $ setSGR[Reset]
+    troutPrint "Execution terminated."
     liftIO $ exitFailure
