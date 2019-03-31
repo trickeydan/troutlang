@@ -1,6 +1,7 @@
 module Language.Trout.Interpreter.Type.Int where
 
 import Language.Trout.Grammar
+import Language.Trout.Error
 import Language.Trout.Interpreter.State
 import Language.Trout.Interpreter.Store
 
@@ -32,5 +33,5 @@ evalIntIdentifier :: Identifier -> TroutState Int
 evalIntIdentifier (Variable name) = do
     val <- troutGetVar name IntType
     return $ troutGetIntFromVarValue val
-evalIntIdentifier (InputIndex _) = error "Input Indices not implemented in integer expressions"
-evalIntIdentifier (ReturnIndex _) = error "Return Indices not implemented in integer expressions"
+evalIntIdentifier (InputIndex _) = notImplemented "Input Indices not implemented in integer expressions"
+evalIntIdentifier (ReturnIndex _) = notImplemented "Return Indices not implemented in integer expressions"

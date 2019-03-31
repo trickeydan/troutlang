@@ -9,6 +9,7 @@ import Language.Trout.Interpreter.Store
 import Language.Trout.Interpreter.Type.Int
 import Language.Trout.Interpreter.Type.Stream
 import Language.Trout.Grammar
+import Language.Trout.Error
 
 executeProgram :: Program -> TroutState ()
 executeProgram program = do
@@ -29,9 +30,15 @@ evalStatement (Print expr) = evalPrintStatement expr
 evalStatement (Break) = troutPrint "Break is currently unimplemented."
 
 evalExpr :: Expr -> TroutState VarValue
-evalExpr (SExpr expr) = error "SExpr evaluation is unimplemented"
-evalExpr (VExpr expr) = error "VExpr evaluation is unimplemented"
-evalExpr (FExpr expr) = error "FExpr evaluation is unimplemented"
+evalExpr (SExpr expr) = do
+    notImplemented "SExpr evaluation is unimplemented"
+    return $ IntVal 0
+evalExpr (VExpr expr) = do
+    notImplemented "VExpr evaluation is unimplemented"
+    return $ IntVal 0
+evalExpr (FExpr expr) = do
+    notImplemented "FExpr evaluation is unimplemented"
+    return $ IntVal 0
 evalExpr (IExpr expr) = do
     eval <- evalIntExpr expr
     return $ IntVal eval
@@ -42,7 +49,8 @@ evalAssignment :: Identifier -> Expr -> TroutState ()
 evalAssignment (Variable name) expr = do
     val <- evalExpr expr
     troutSetVar name val
-evalAssignment _ _ = error "Only assignment to variables is allowed"
+evalAssignment (InputIndex _) _ = notImplemented "Assignment to input indices"
+evalAssignment _ _ = error "Only assignment to variables or input indices is allowed."
 
 
 -- Print Statement
@@ -51,4 +59,6 @@ evalPrintStatement:: Expr -> TroutState ()
 evalPrintStatement (IExpr expr) = do
     val <- evalExpr (IExpr expr)
     troutPrint $ troutGetIntFromVarValue val
-evalPrintStatement _ = error "Print in is not implemented for that."
+evalPrintStatement(SExpr expr) = notImplemented "Print SExpr"
+evalPrintStatement(FExpr expr) = notImplemented "Print SExpr"
+evalPrintStatement(VExpr expr) = notImplemented "Print SExpr"

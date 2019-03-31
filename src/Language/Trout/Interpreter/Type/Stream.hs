@@ -10,8 +10,8 @@ evalStreamExpr (AppendStream expr1 expr2) = do
     st1 <- evalStreamExpr expr1
     st2 <- evalStreamExpr expr2
     return $ st1 ++ st2
-evalStreamExpr (StreamIdentifier _) = error "StreamIdentifiers are not implemented."
-evalStreamExpr (Iterator expr statements) = error "Iterators are not implemented"
+evalStreamExpr (StreamIdentifier _) =  notImplemented "StreamIdentifiers are not implemented."
+evalStreamExpr (Iterator expr statements) =  notImplemented "Iterators are not implemented"
 
 evalStreamIdentifier :: Identifier -> TroutState StreamExpr
 evalStreamIdentifier (InputIndex _) = error "An input index is only of type int and is not compatible with type stream."

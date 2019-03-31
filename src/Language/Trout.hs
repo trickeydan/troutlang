@@ -3,4 +3,4 @@ module Language.Trout (
 ) where
 
 runTroutExecutable :: IO ()
-runTroutExecutable = putStrLn "Not implemented."
+runTroutExecutable =  notImplemented "runTroutExecutable"
