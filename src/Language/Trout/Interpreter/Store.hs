@@ -1,36 +1,43 @@
 module Language.Trout.Interpreter.Store where
 
-type Var = (String, Int)
-type VarStorage = [Var]
 
-newtype TroutStore = TroutStore VarStorage deriving Show
 
--- TroutStore functions
+-- Everything in this file should be pure.
 
-getVarFromStore :: TroutStore -> String -> Int
-getVarFromStore (TroutStore state) = getVarInVarStore state
+data VarType = StreamType | FrameType | IntType deriving Show
+data VarValue = StreamVal [[Int]] | FrameVal [Int] | IntVal Int deriving Show
 
-setVarInStore :: TroutStore -> String -> Int -> TroutStore
-setVarInStore (TroutStore state) name value = TroutStore newstore
-    where 
-        newstore = updateVarInVarStore state name value False []
+type StoreEntry = (String, VarValue)
+newtype TroutStore = TroutStore [StoreEntry] deriving Show
 
--- VarStorage Functions
-
-getVarInVarStore :: VarStorage -> String -> Int
-getVarInVarStore [] _ = error "FUCK"
-getVarInVarStore (x:xs) varname
-    | fst x == varname = snd x
-    | otherwise = getVarInVarStore xs varname
-
-updateVarInVarStore :: VarStorage -> String -> Int -> Bool -> VarStorage -> VarStorage
-updateVarInVarStore (x:xs) name value found new
-    | fst x == name = updateVarInVarStore xs name value True newVarStorage
-    | otherwise = updateVarInVarStore xs name value found new
+getVar :: TroutStore -> String -> VarType -> VarValue
+getVar (TroutStore store) name vartype = getValList store name vartype
     where
-        newVarStorage = (name, value):new
-updateVarInVarStore [] name value found new
-    | found = new
-    | otherwise = newVarStorage
+        getValList :: [StoreEntry] -> String -> VarType -> VarValue
+        getValList [] n _ = error ("Undefined variable: " ++ n)
+        getValList (x:xs) n vt
+            | fst x == n = confirmType vt (snd x) 
+            | otherwise = getValList xs n vt
+            where
+                confirmType :: VarType -> VarValue -> VarValue
+                confirmType StreamType (StreamVal s) = StreamVal s
+                confirmType FrameType (FrameVal s) = FrameVal s
+                confirmType IntType (IntVal s) = IntVal s
+                confirmType expected actual = error ("Type mismatch: expecting " ++ show expected ++ " but got " ++ show actual)
+
+setVar :: TroutStore -> String -> VarValue -> TroutStore
+setVar (TroutStore store) name value = TroutStore $ setValList store name value False []
     where
-        newVarStorage = (name, value):new
+        setValList :: [StoreEntry] -> String -> VarValue -> Bool -> [StoreEntry] -> [StoreEntry]
+        setValList [] n v found new
+            | found = new
+            | otherwise = newVarStorage
+            where
+                -- Note: This does not do a type check before setting the variable.
+                newVarStorage = (n, v):new
+        setValList (x:xs) nam val found new
+            | fst x == nam = setValList xs nam val True newVarStorage
+            | otherwise = setValList xs nam val found new
+            where
+                -- Note: This does not do a type check before setting the variable.
+                newVarStorage = (nam, val):new

@@ -15,13 +15,17 @@ troutDumpState = do
     tstate <- get
     troutPrint tstate
 
-troutSetVar :: String -> Int -> TroutState ()
+troutSetVar :: String -> VarValue -> TroutState ()
 troutSetVar name value = do
-    before <- get
-    put $ setVarInStore before name value
+    beforeStore <- get
+    put $ setVar beforeStore name value
 
-troutGetVar :: String -> TroutState Int
-troutGetVar name = do
-    tstate <- get
-    let val = getVarFromStore tstate name
+troutGetVar :: String -> VarType -> TroutState VarValue
+troutGetVar name vartype = do
+    store <- get
+    let val = getVar store name vartype
     return val
+
+troutGetIntFromVarValue:: VarValue -> Int
+troutGetIntFromVarValue (IntVal val) = val
+troutGetIntFromVarValue _ = error "Expected Type Int"
