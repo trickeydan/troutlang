@@ -28,4 +28,4 @@ troutGetVar name vartype = do
 
 troutGetIntFromVarValue:: VarValue -> Int
 troutGetIntFromVarValue (IntVal val) = val
-troutGetIntFromVarValue _ = error "TypeError: Expected Type Int"
+troutGetIntFromVarValue _ = error "Expected Type Int"

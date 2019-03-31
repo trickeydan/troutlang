@@ -20,10 +20,10 @@ evalStreamExpr (Iterator expr statements) = do
 
 evalStreamIdentifier :: Identifier -> TroutState StreamExpr
 evalStreamIdentifier (InputIndex _) = do
-    error "An input index is only of type int and is not compatible with type stream."
+    typeError "An input index is only of type int and is not compatible with type stream."
     return $ Stream []
 evalStreamIdentifier (ReturnIndex _) = do
-    error "An return index is only of type int and is not compatible with type stream."
+    typeError "An return index is only of type int and is not compatible with type stream."
     return $ Stream []
 evalStreamIdentifier (Variable name) = do
     val <- troutGetVar name StreamType

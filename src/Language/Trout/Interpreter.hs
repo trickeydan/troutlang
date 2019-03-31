@@ -17,17 +17,17 @@ executeProgram program = do
     return ()
 
 evalProgram :: Program -> TroutState ()
-evalProgram [] = troutPrint "Execution complete."
+evalProgram [] = troutPrint "Execution complete." -- return ()
 evalProgram (x:xs) = do 
     evalStatement x
     evalProgram xs
 
 evalStatement :: Statement -> TroutState ()
 evalStatement (Assignment ident expr) = evalAssignment ident expr
-evalStatement (NullAssignment _) = troutPrint "Null Assignment is currently unimplemented."
-evalStatement (ConditionalIf _ _ ) = troutPrint "ConditionalIf is currently unimplemented."
+evalStatement (NullAssignment _) = notImplemented "Null Assignment is currently unimplemented."
+evalStatement (ConditionalIf _ _ ) = notImplemented "ConditionalIf is currently unimplemented."
 evalStatement (Print expr) = evalPrintStatement expr
-evalStatement (Break) = troutPrint "Break is currently unimplemented."
+evalStatement (Break) = notImplemented "Break is currently unimplemented."
 
 evalExpr :: Expr -> TroutState VarValue
 evalExpr (SExpr expr) = do
@@ -50,7 +50,7 @@ evalAssignment (Variable name) expr = do
     val <- evalExpr expr
     troutSetVar name val
 evalAssignment (InputIndex _) _ = notImplemented "Assignment to input indices"
-evalAssignment _ _ = error "Only assignment to variables or input indices is allowed."
+evalAssignment _ _ = typeError "Only assignment to variables or input indices is allowed."
 
 
 -- Print Statement
