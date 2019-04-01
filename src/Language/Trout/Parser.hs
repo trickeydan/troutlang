@@ -82,8 +82,12 @@ frameExpr = makeExprParser exprTerm opTable
       ]
 
 streamExpr :: Parser StreamExpr
-streamExpr = makeExprParser exprTerm opTable
+streamExpr = choice
+  [ try iteratorStream
+  , flatStream ]
   where
+    flatStream :: Parser StreamExpr
+    flatStream = makeExprParser exprTerm opTable
     exprTerm :: Parser StreamExpr
     exprTerm = choice
       [ StreamIdentifier <$> identifier
@@ -91,6 +95,11 @@ streamExpr = makeExprParser exprTerm opTable
     opTable = [
         [inf "&" AppendStream]
       ]
+    iteratorStream :: Parser StreamExpr
+    iteratorStream =
+      Iterator <$>
+      flatStream <*>
+      between (symbol "{") (symbol "}") programParser
 
 expr :: Parser Expr
 expr = choice
