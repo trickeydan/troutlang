@@ -20,8 +20,6 @@ instance Show VarValue where
     show (StreamVal []) = ""
     show (StreamVal (x:xs)) = showFrame x ++ "\n"
 
-
-
 getVar :: TroutStore -> String -> VarType -> VarValue
 getVar (TroutStore store) name vartype = getValList store name vartype
     where

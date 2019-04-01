@@ -68,11 +68,6 @@ evalNullAssignment expr = evalExpr expr >> return ()
 -- Print Statement
 
 evalPrintStatement:: Expr -> TroutState ()
-evalPrintStatement (IExpr expr) = do
-    val <- evalExpr (IExpr expr)
-    troutPrint val
-evalPrintStatement(SExpr _) = notImplemented "Print SExpr"
-evalPrintStatement(FExpr _) = notImplemented "Print FExpr"
-evalPrintStatement(VExpr ident) = do
-    val <- evalIdentifier ident
+evalPrintStatement expr = do
+    val <-  evalExpr expr
     troutPrint val
