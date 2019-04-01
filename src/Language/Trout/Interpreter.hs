@@ -23,7 +23,7 @@ evalProgram (x:xs) = do
 
 evalStatement :: Statement -> TroutState ()
 evalStatement (Assignment ident expr) = evalAssignment ident expr
-evalStatement (NullAssignment _) = notImplemented "Null Assignment is currently unimplemented."
+evalStatement (NullAssignment expr) = evalNullAssignment expr
 evalStatement (ConditionalIf _ _ ) = notImplemented "ConditionalIf is currently unimplemented."
 evalStatement (Print expr) = evalPrintStatement expr
 evalStatement (Break) = notImplemented "Break is currently unimplemented."
@@ -51,6 +51,10 @@ evalAssignment (Variable name) expr = do
 evalAssignment (InputIndex _) _ = notImplemented "Assignment to input indices"
 evalAssignment _ _ = typeError "Only assignment to variables or input indices is allowed."
 
+-- NullAssignment Statement
+
+evalNullAssignment :: Expr -> TroutState ()
+evalNullAssignment expr = evalExpr expr >> return ()
 
 -- Print Statement
 
