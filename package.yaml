@@ -21,6 +21,8 @@ dependencies:
 - hspec
 - ansi-terminal
 - megaparsec
+- parser-combinators
+- text
 - mtl
 - QuickCheck
 
