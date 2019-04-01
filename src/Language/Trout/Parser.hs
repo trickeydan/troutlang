@@ -7,7 +7,8 @@ module Language.Trout.Parser (
   streamExpr,
   expr,
   condition,
-  statement
+  statement,
+  programParser
 ) where
 
 import Text.Megaparsec
@@ -136,3 +137,16 @@ statement = choice
       s <- statement
       return $ ConditionalIf c s
     prints = expr >>= return . Print
+
+programParser :: Parser Program
+programParser = choice
+  [ try emptyProgram
+  , statements ]
+  where
+    blankLines = many (try $ spaceConsumer >> eol) >> spaceConsumer
+    emptyProgram = blankLines >> eof >> return []
+    statements = do
+      _ <- blankLines
+      s <- statement
+      ss <- programParser
+      return (s:ss)
