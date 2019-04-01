@@ -10,11 +10,17 @@ data VarValue = StreamVal [[Int]] | FrameVal [Int] | IntVal Int
 type StoreEntry = (String, VarValue)
 newtype TroutStore = TroutStore [StoreEntry] deriving Show
 
+showFrame :: [Int] -> String
+showFrame [] = ""
+showFrame (x:xs) = (show x) ++ " " ++ showFrame xs
+
 instance Show VarValue where
     show (IntVal val) = show val
-    show (FrameVal []) = ""
-    show (FrameVal (x:xs)) = (show x) ++ " " ++ show (FrameVal xs)
-    show (StreamVal _ ) = error "NotImplemented Conversion of streams to strings for printing"
+    show (FrameVal xs) = showFrame xs
+    show (StreamVal []) = ""
+    show (StreamVal (x:xs)) = showFrame x ++ "\n"
+
+
 
 getVar :: TroutStore -> String -> VarType -> VarValue
 getVar (TroutStore store) name vartype = getValList store name vartype
