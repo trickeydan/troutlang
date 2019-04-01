@@ -1,7 +1,5 @@
 module Language.Trout.Interpreter.Store where
 
-
-
 -- Everything in this file should be pure.
 
 data VarType = StreamType | FrameType | IntType deriving Show

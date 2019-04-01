@@ -36,3 +36,7 @@ troutGetVarAny name = do
 troutGetIntFromVarValue:: VarValue -> Int
 troutGetIntFromVarValue (IntVal val) = val
 troutGetIntFromVarValue _ = error "Expected Type Int"
+
+troutGetFrameFromVarValue:: VarValue -> [Int]
+troutGetFrameFromVarValue (FrameVal val) = val
+troutGetFrameFromVarValue _ = error "Expected Type Frame"
