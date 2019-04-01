@@ -94,9 +94,7 @@ streamExpr = choice
     exprTerm = choice
       [ StreamIdentifier <$> identifier
       , (\f -> Stream [f]) <$> frameExpr ]
-    opTable = [
-        [inf "&" AppendStream]
-      ]
+    opTable = [[inf "&" AppendStream]]
     iteratorStream :: Parser StreamExpr
     iteratorStream =
       Iterator <$>
