@@ -5,7 +5,14 @@ module Language.Trout.Interpreter.Store where
 -- Everything in this file should be pure.
 
 data VarType = StreamType | FrameType | IntType deriving Show
-data VarValue = StreamVal [[Int]] | FrameVal [Int] | IntVal Int deriving Show
+data VarValue = StreamVal [[Int]] | FrameVal [Int] | IntVal Int
+
+instance Show VarValue where
+    show (IntVal val) = show val
+    show (FrameVal []) = ""
+    show (FrameVal (x:xs)) = (show x) ++ " " ++ show (FrameVal xs)
+    show (StreamVal _ ) = error "NotImplemented Conversion of streams to strings for printing"
+
 
 type StoreEntry = (String, VarValue)
 newtype TroutStore = TroutStore [StoreEntry] deriving Show

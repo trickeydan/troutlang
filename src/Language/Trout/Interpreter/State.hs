@@ -26,12 +26,6 @@ troutGetVar name vartype = do
     let val = getVar store name vartype
     return val
 
-getStringFromVarValue :: VarValue -> String
-getStringFromVarValue (IntVal val) = show val
-getStringFromVarValue (FrameVal []) = ""
-getStringFromVarValue (FrameVal (x:xs)) = (show x) ++ " " ++ getStringFromVarValue (FrameVal xs)
-getStringFromVarValue (StreamVal _ ) = error "NotImplemented Conversion of streams to strings for printing"
-
 -- Deprecate me
 troutGetIntFromVarValue:: VarValue -> Int
 troutGetIntFromVarValue (IntVal val) = val

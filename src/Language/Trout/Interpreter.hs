@@ -70,9 +70,9 @@ evalNullAssignment expr = evalExpr expr >> return ()
 evalPrintStatement:: Expr -> TroutState ()
 evalPrintStatement (IExpr expr) = do
     val <- evalExpr (IExpr expr)
-    troutPrint $ getStringFromVarValue val
+    troutPrint val
 evalPrintStatement(SExpr _) = notImplemented "Print SExpr"
 evalPrintStatement(FExpr _) = notImplemented "Print FExpr"
 evalPrintStatement(VExpr ident) = do
     val <- evalIdentifier ident
-    troutPrint $ getStringFromVarValue val
+    troutPrint val
