@@ -1,14 +1,22 @@
 module Language.Trout.Interpreter.Store where
 
-
-
 -- Everything in this file should be pure.
 
 data VarType = StreamType | FrameType | IntType deriving Show
-data VarValue = StreamVal [[Int]] | FrameVal [Int] | IntVal Int deriving Show
+data VarValue = StreamVal [[Int]] | FrameVal [Int] | IntVal Int
 
 type StoreEntry = (String, VarValue)
 newtype TroutStore = TroutStore [StoreEntry] deriving Show
+
+showFrame :: [Int] -> String
+showFrame [] = ""
+showFrame (x:xs) = (show x) ++ " " ++ showFrame xs
+
+instance Show VarValue where
+    show (IntVal val) = show val
+    show (FrameVal xs) = showFrame xs
+    show (StreamVal []) = ""
+    show (StreamVal (x:xs)) = showFrame x ++ "\n" ++ show (StreamVal xs)
 
 getVar :: TroutStore -> String -> VarType -> VarValue
 getVar (TroutStore store) name vartype = getValList store name vartype
@@ -24,6 +32,17 @@ getVar (TroutStore store) name vartype = getValList store name vartype
                 confirmType FrameType (FrameVal s) = FrameVal s
                 confirmType IntType (IntVal s) = IntVal s
                 confirmType expected actual = error ("Type mismatch: expecting " ++ show expected ++ " but got " ++ show actual)
+
+-- TODO: Reduce duplicated code.
+getVarAny :: TroutStore -> String -> VarValue
+getVarAny (TroutStore store) name = getValList store name
+    where
+        getValList :: [StoreEntry] -> String -> VarValue
+        getValList [] n = error ("Undefined variable: " ++ n)
+        getValList (x:xs) n
+            | fst x == n = snd x
+            | otherwise = getValList xs n
+
 
 setVar :: TroutStore -> String -> VarValue -> TroutStore
 setVar (TroutStore store) name value = TroutStore $ setValList store name value False []
