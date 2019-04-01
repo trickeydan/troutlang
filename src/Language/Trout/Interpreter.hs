@@ -41,9 +41,7 @@ evalExpr (IExpr expr) = do
     return $ IntVal eval
 
 evalIdentifier :: Identifier -> TroutState VarValue
-evalIdentifier (Variable _) = do
-    notImplemented "Evaluation of variables"
-    return $ IntVal 0
+evalIdentifier (Variable name) = troutGetVarAny name
 evalIdentifier (InputIndex _) = do
     notImplemented "Evaluation of input indices"
     return $ IntVal 0

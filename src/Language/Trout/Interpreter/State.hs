@@ -26,6 +26,12 @@ troutGetVar name vartype = do
     let val = getVar store name vartype
     return val
 
+troutGetVarAny :: String -> TroutState VarValue
+troutGetVarAny name = do
+    store <- get
+    let val = getVarAny store name
+    return val
+
 -- Deprecate me
 troutGetIntFromVarValue:: VarValue -> Int
 troutGetIntFromVarValue (IntVal val) = val
