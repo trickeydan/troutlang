@@ -89,7 +89,7 @@ streamExpr = makeExprParser exprTerm opTable
       [ StreamIdentifier <$> identifier
       , (\f -> Stream [f]) <$> frameExpr ]
     opTable = [
-        [inf "++" AppendStream]
+        [inf "&" AppendStream]
       ]
 
 expr :: Parser Expr
