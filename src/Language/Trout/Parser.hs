@@ -8,7 +8,8 @@ module Language.Trout.Parser (
   expr,
   condition,
   statement,
-  programParser
+  programParser,
+  fileParser
 ) where
 
 import Text.Megaparsec
@@ -177,3 +178,9 @@ programParser = choice
       s <- statement
       ss <- programParser
       return (s:ss)
+
+fileParser :: Parser Program
+fileParser = do
+  p <- programParser
+  _ <- eof
+  return p
