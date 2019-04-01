@@ -140,11 +140,11 @@ statement = choice
 
 programParser :: Parser Program
 programParser = choice
-  [ try emptyProgram
-  , statements ]
+  [ try statements
+  , emptyProgram ]
   where
     blankLines = many (try $ spaceConsumer >> eol) >> spaceConsumer
-    emptyProgram = blankLines >> eof >> return []
+    emptyProgram = blankLines >> return []
     statements = do
       _ <- blankLines
       s <- statement
