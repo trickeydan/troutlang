@@ -32,15 +32,24 @@ evalExpr :: Expr -> TroutState VarValue
 evalExpr (SExpr _) = do
     notImplemented "SExpr evaluation is unimplemented"
     return $ IntVal 0
-evalExpr (VExpr _) = do
-    notImplemented "VExpr evaluation is unimplemented"
-    return $ IntVal 0
+evalExpr (VExpr ident) = evalIdentifier ident
 evalExpr (FExpr _) = do
     notImplemented "FExpr evaluation is unimplemented"
     return $ IntVal 0
 evalExpr (IExpr expr) = do
     eval <- evalIntExpr expr
     return $ IntVal eval
+
+evalIdentifier :: Identifier -> TroutState VarValue
+evalIdentifier (Variable _) = do
+    notImplemented "Evaluation of variables"
+    return $ IntVal 0
+evalIdentifier (InputIndex _) = do
+    notImplemented "Evaluation of input indices"
+    return $ IntVal 0
+evalIdentifier (ReturnIndex _ ) = do
+    notImplemented "Evaluation of output indices"
+    return $ IntVal 0
 
 -- Assignment Statement
 
@@ -61,7 +70,9 @@ evalNullAssignment expr = evalExpr expr >> return ()
 evalPrintStatement:: Expr -> TroutState ()
 evalPrintStatement (IExpr expr) = do
     val <- evalExpr (IExpr expr)
-    troutPrint $ troutGetIntFromVarValue val
+    troutPrint $ getStringFromVarValue val
 evalPrintStatement(SExpr _) = notImplemented "Print SExpr"
-evalPrintStatement(FExpr _) = notImplemented "Print SExpr"
-evalPrintStatement(VExpr _) = notImplemented "Print SExpr"
+evalPrintStatement(FExpr _) = notImplemented "Print FExpr"
+evalPrintStatement(VExpr ident) = do
+    val <- evalIdentifier ident
+    troutPrint $ getStringFromVarValue val
