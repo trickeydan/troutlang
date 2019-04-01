@@ -15,6 +15,7 @@ import Text.Megaparsec
 import Text.Megaparsec.Char
 import qualified Text.Megaparsec.Char.Lexer as L
 import Control.Monad.Combinators.Expr
+import Control.Monad
 import Data.Void
 import Data.Text
 
@@ -103,10 +104,27 @@ streamExpr = choice
 
 expr :: Parser Expr
 expr = choice
-  [ VExpr <$> try identifier
-  , IExpr <$> try intExpr
-  , FExpr <$> try frameExpr
-  , SExpr <$> streamExpr ]
+  [ try $ liftM simplifyExpr nonIdExpr
+  , VExpr <$> identifier ]
+  where
+    nonIdExpr :: Parser Expr
+    nonIdExpr = do
+      e <- complexExpr
+      if isId e then fail "" else return e
+    complexExpr :: Parser Expr
+    complexExpr = choice
+      [ SExpr <$> try streamExpr
+      , FExpr <$> try frameExpr
+      , IExpr <$> try intExpr ]
+    isId :: Expr -> Bool
+    isId (SExpr (StreamIdentifier _)) = True
+    isId (FExpr (FrameIdentifier _)) = True
+    isId (IExpr (IntIdentifier _)) = True
+    isId _ = False
+    simplifyExpr :: Expr -> Expr
+    simplifyExpr (SExpr (Stream [f])) = simplifyExpr (FExpr f)
+    simplifyExpr (FExpr (Frame [i])) = simplifyExpr (IExpr i)
+    simplifyExpr e = e
 
 condition :: Parser Condition
 condition = lexeme $ try equals <|> notEquals
