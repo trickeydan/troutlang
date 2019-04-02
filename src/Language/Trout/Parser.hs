@@ -130,13 +130,11 @@ condition = lexeme $ try equals <|> notEquals
     equals = do
       left <- expr
       _ <- symbol "=="
-      right <- expr
-      return $ Equals left right
+      Equals left <$> expr
     notEquals = do
       left <- expr
       _ <- symbol "!="
-      right <- expr
-      return $ NotEquals left right
+      NotEquals left <$> expr
 
 statement :: Parser Statement
 statement = choice
@@ -154,13 +152,11 @@ statement = choice
     assignment = do
       i <- identifier
       _ <- symbol "="
-      e <- expr
-      return $ Assignment i e
+      Assignment i <$> expr
     conditionalIf = do
       _ <- symbol "if"
       c <- between (symbol "(") (symbol ")") condition
-      s <- statement
-      return $ ConditionalIf c s
+      ConditionalIf c <$> statement
     prints = Print <$> expr
 
 programParser :: Parser Program
