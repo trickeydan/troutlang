@@ -2,7 +2,8 @@ module Language.Trout.Interpreter.IO (
   StreamBuffer,
   InBuffer(InBuffer),
   OutBuffer(OutBuffer),
-  printToBuffer
+  printToBuffer,
+  extendBuffer
 ) where
 
 import Prelude hiding (getLine, putStr, putStrLn)
@@ -20,6 +21,10 @@ printToBuffer (InBuffer i, OutBuffer o) t = do
   fullBuffer <- fillBuffer (InBuffer i, OutBuffer (t:o))
   putStrLn t
   return fullBuffer
+
+extendBuffer :: StreamBuffer -> IO StreamBuffer
+extendBuffer (InBuffer i, OutBuffer o) = fetchLine >>=
+  (\l -> return (InBuffer (l:i), OutBuffer o))
 
 fillBuffer :: StreamBuffer -> IO StreamBuffer
 fillBuffer b@(InBuffer i, OutBuffer o) =
