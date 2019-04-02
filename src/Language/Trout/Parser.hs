@@ -16,7 +16,6 @@ import Text.Megaparsec
 import Text.Megaparsec.Char
 import qualified Text.Megaparsec.Char.Lexer as L
 import Control.Monad.Combinators.Expr
-import Control.Monad
 import Data.Void
 import Data.Text
 
@@ -103,7 +102,7 @@ streamExpr = choice
 
 expr :: Parser Expr
 expr = choice
-  [ try $ liftM simplifyExpr nonIdExpr
+  [ try $ simplifyExpr <$> nonIdExpr
   , VExpr <$> identifier ]
   where
     nonIdExpr :: Parser Expr
@@ -148,10 +147,10 @@ statement = choice
   , prints ]
   where
     breaks = symbol "break" >> return Break
-    nullAssignment =
+    nullAssignment = fmap NullAssignment $
       symbol "_" >>
       symbol "=" >>
-      expr >>= return . NullAssignment
+      expr
     assignment = do
       i <- identifier
       _ <- symbol "="
