@@ -3,6 +3,7 @@ module Language.Trout.Application (
 ) where
 
 import Language.Trout.Parser(fileParser)
+import Language.Trout.Error(syntaxError)
 import Language.Trout.Interpreter(executeProgram)
 import Language.Trout.Interpreter.Store
 import Text.Megaparsec(runParser)
@@ -18,8 +19,9 @@ runApp = do
   let file = head args
   source <- readFile file
   let parsed = runParser fileParser file source
-  let program = extractProgram parsed
+  program <- extractProgram parsed
   void $ runStateT (executeProgram program) (TroutStore [])
   where
-    extractProgram (Left bundle) = error $ show bundle
-    extractProgram (Right program) = program
+    extractProgram (Left bundle) = syntaxError bundle >> return []
+    extractProgram (Right program) = return program
+

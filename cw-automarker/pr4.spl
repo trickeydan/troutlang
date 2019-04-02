@@ -1,6 +1,6 @@
 /*
     Each value in the stream is the sum so far.
-/*
+*/
 acc = 0
 IN {
     acc = acc + [0]
