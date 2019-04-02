@@ -24,6 +24,7 @@ build_submission:
     paths:
       - cwk/downloads
   script:
+    - "apt install zip"
     - "cd cwk && ./build.sh"
     - "zip -r submission.zip submission/*"
   artifacts:
