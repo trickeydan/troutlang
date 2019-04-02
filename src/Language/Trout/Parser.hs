@@ -77,8 +77,8 @@ frameExpr = makeExprParser exprTerm opTable
   where
     exprTerm :: Parser FrameExpr
     exprTerm = choice
-      [ FrameIdentifier <$> identifier
-      , (\i -> Frame [i]) <$> intExpr ]
+      [ (\i -> Frame [i]) <$> try intExpr
+      , FrameIdentifier <$> identifier ]
     opTable = [
         [ inf "," AppendFrame]
       ]
@@ -92,8 +92,8 @@ streamExpr = choice
     flatStream = makeExprParser exprTerm opTable
     exprTerm :: Parser StreamExpr
     exprTerm = choice
-      [ StreamIdentifier <$> identifier
-      , (\f -> Stream [f]) <$> frameExpr ]
+      [ (\f -> Stream [f]) <$> try frameExpr
+      , StreamIdentifier <$> identifier ]
     opTable = [[inf "&" AppendStream]]
     iteratorStream :: Parser StreamExpr
     iteratorStream =
