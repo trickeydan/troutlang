@@ -1,7 +1,8 @@
 module Language.Trout.Interpreter.IO (
   StreamBuffer,
   InBuffer(InBuffer),
-  OutBuffer(OutBuffer)
+  OutBuffer(OutBuffer),
+  printToBuffer
 ) where
 
 import Language.Trout.Grammar
