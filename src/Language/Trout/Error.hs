@@ -7,23 +7,17 @@ import Language.Trout.Interpreter.State
 import Text.Megaparsec(errorBundlePretty, Stream, ShowErrorComponent, ParseErrorBundle)
 
 notImplemented :: String -> TroutState ()
-notImplemented m = troutError $ "Not Implemented: " ++ m
+notImplemented m = liftIO $ troutError $ "Not Implemented: " ++ m
 
 typeError :: String -> TroutState ()
-typeError m = troutError $ "TypeError: " ++ m
+typeError m = liftIO $ troutError $ "TypeError: " ++ m
 
-troutError:: String -> TroutState ()
+troutError:: String -> IO ()
 troutError message = do
-    liftIO $ setSGR[SetColor Foreground Vivid Red]
-    troutPrint $ message
-    liftIO $ setSGR[Reset]
-    troutPrint "Execution terminated."
-    liftIO $ exitFailure
-
-syntaxError :: (Stream s, ShowErrorComponent e) => ParseErrorBundle s e -> IO ()
-syntaxError bundle = do
     setSGR[SetColor Foreground Vivid Red]
-    putStrLn "Error during parsing:"
-    putStrLn $ errorBundlePretty bundle
+    putStrLn $ message
     setSGR[Reset]
     exitFailure
+
+syntaxError :: (Stream s, ShowErrorComponent e) => ParseErrorBundle s e -> IO ()
+syntaxError = troutError . errorBundlePretty
