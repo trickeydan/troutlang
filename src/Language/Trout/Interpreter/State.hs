@@ -10,7 +10,7 @@ type TroutState a = StateT (StreamBuffer, TroutStore) IO a
 troutPrint :: Show a => a -> TroutState ()
 troutPrint t = do
     (buffer, store) <- get
-    buffer' <- liftIO . (printToBuffer buffer) . pack . show $ t
+    buffer' <- liftIO . printToBuffer buffer . pack . show $ t
     put (buffer', store)
 
 -- Data Things
