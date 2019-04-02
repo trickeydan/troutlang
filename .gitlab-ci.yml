@@ -18,6 +18,19 @@ build_stack:
     paths:
       - .bins
 
+build_submission:
+  stage: build
+  cache:
+    paths:
+      - cwk/downloads
+  script:
+    - "apt update && apt install zip -y"
+    - "cd cwk && ./build.sh"
+    - "cd submission && zip -r submission.zip *"
+  artifacts:
+    paths:
+      - cwk/submission/submission.zip
+
 test_stack:
   stage: test
   cache:
@@ -49,6 +62,6 @@ test_pawel:
   cache:
     policy: pull
   script:
-    - "cp .bins/trout-exe cw-automarker/trout"
-    - "cd cw-automarker && ./auto"
+    - "cp .bins/trout-exe cwk/cw-automarker/trout"
+    - "cd cwk/cw-automarker && ./auto"
   allow_failure: true
