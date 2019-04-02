@@ -24,6 +24,17 @@ data IntExpr =
   | IntMultiply IntExpr IntExpr
   deriving(Eq, Show)
 
+data BoolExpr =
+  Boolean Bool
+  | Equals Expr Expr
+  | NotEquals Expr Expr
+  | LessThan Expr Expr
+  | GreaterThan Expr Expr
+  | Or BoolExpr BoolExpr
+  | And BoolExpr BoolExpr
+  | Not BoolExpr
+  deriving(Eq, Show)
+
 data Identifier =
   Variable String
   | InputIndex IntExpr
@@ -37,15 +48,10 @@ data Expr =
   | VExpr Identifier
   deriving(Eq, Show)
 
-data Condition =
-  Equals Expr Expr
-  | NotEquals Expr Expr
-  deriving(Eq, Show)
-
 data Statement = 
   Assignment Identifier Expr
   | NullAssignment Expr
-  | ConditionalIf Condition Statement
+  | ConditionalIf BoolExpr Statement
   | Print Expr
   | Break
   deriving(Eq, Show)
