@@ -10,7 +10,7 @@ newtype TroutStore = TroutStore [StoreEntry] deriving Show
 
 showFrame :: [Int] -> String
 showFrame [] = ""
-showFrame (x:xs) = (show x) ++ " " ++ showFrame xs
+showFrame (x:xs) = show x ++ " " ++ showFrame xs
 
 instance Show VarValue where
     show (IntVal val) = show val
@@ -19,7 +19,7 @@ instance Show VarValue where
     show (StreamVal (x:xs)) = showFrame x ++ "\n" ++ show (StreamVal xs)
 
 getVar :: TroutStore -> String -> VarType -> VarValue
-getVar (TroutStore store) name vartype = getValList store name vartype
+getVar (TroutStore store) = getValList store
     where
         getValList :: [StoreEntry] -> String -> VarType -> VarValue
         getValList [] n _ = error ("Undefined variable: " ++ n)
@@ -35,7 +35,7 @@ getVar (TroutStore store) name vartype = getValList store name vartype
 
 -- TODO: Reduce duplicated code.
 getVarAny :: TroutStore -> String -> VarValue
-getVarAny (TroutStore store) name = getValList store name
+getVarAny (TroutStore store) = getValList store
     where
         getValList :: [StoreEntry] -> String -> VarValue
         getValList [] n = error ("Undefined variable: " ++ n)

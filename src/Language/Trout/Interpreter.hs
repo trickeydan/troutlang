@@ -11,6 +11,8 @@ import Language.Trout.Interpreter.Type.Frame
 import Language.Trout.Grammar
 import Language.Trout.Error
 
+import Control.Monad(void)
+
 executeProgram :: Program -> TroutState ()
 executeProgram program = do
     evalProgram program
@@ -27,7 +29,7 @@ evalStatement (Assignment ident expr) = evalAssignment ident expr
 evalStatement (NullAssignment expr) = evalNullAssignment expr
 evalStatement (ConditionalIf _ _ ) = notImplemented "ConditionalIf is currently unimplemented."
 evalStatement (Print expr) = evalPrintStatement expr
-evalStatement (Break) = notImplemented "Break is currently unimplemented."
+evalStatement Break = notImplemented "Break is currently unimplemented."
 
 evalExpr :: Expr -> TroutState VarValue
 evalExpr (SExpr _) = do
@@ -62,7 +64,7 @@ evalAssignment _ _ = typeError "Only assignment to variables or input indices is
 -- NullAssignment Statement
 
 evalNullAssignment :: Expr -> TroutState ()
-evalNullAssignment expr = evalExpr expr >> return ()
+evalNullAssignment expr = void $ evalExpr expr
 
 -- Print Statement
 

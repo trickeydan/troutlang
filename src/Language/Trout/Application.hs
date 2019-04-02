@@ -8,7 +8,7 @@ import Language.Trout.Interpreter(executeProgram)
 import Language.Trout.Interpreter.Store
 import Text.Megaparsec(runParser)
 import System.Environment(getArgs)
-import Control.Monad
+import Control.Monad(void)
 import Control.Monad.State
 import Data.Text.IO(readFile)
 import Prelude hiding(readFile)
@@ -18,7 +18,7 @@ runApp = do
   rawArgs <- getArgs
   runProgram rawArgs
   where
-    runProgram (file:[]) = do
+    runProgram [file] = do
       source <- readFile file
       let parsed = runParser fileParser file source
       program <- extractProgram parsed
