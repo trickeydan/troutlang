@@ -26,12 +26,12 @@ evalFrameIdentifier _ = do
 
 getFrameVarValue :: [IntExpr] -> TroutState VarValue
 getFrameVarValue exprs = do
-    ints <- oof exprs
+    ints <- reduceIntExprList exprs
     return $ FrameVal ints
-    where
-        oof :: [IntExpr] -> TroutState [Int]
-        oof [] = return []
-        oof (x:xs) = do
-            val <- evalIntExpr x
-            vals <- oof xs
-            return (val:vals)
+
+reduceIntExprList :: [IntExpr] -> TroutState [Int]
+reduceIntExprList [] = return []
+reduceIntExprList (x:xs) = do
+    val <- evalIntExpr x
+    vals <- reduceIntExprList xs
+    return (val:vals)

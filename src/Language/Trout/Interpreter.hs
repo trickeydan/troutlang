@@ -8,6 +8,7 @@ import Language.Trout.Interpreter.State
 import Language.Trout.Interpreter.Store
 import Language.Trout.Interpreter.Type.Int
 import Language.Trout.Interpreter.Type.Frame
+import Language.Trout.Interpreter.Type.Stream
 import Language.Trout.Grammar
 import Language.Trout.Error
 
@@ -32,9 +33,9 @@ evalStatement (Print expr) = evalPrintStatement expr
 evalStatement Break = notImplemented "Break is currently unimplemented."
 
 evalExpr :: Expr -> TroutState VarValue
-evalExpr (SExpr _) = do
-    notImplemented "SExpr evaluation is unimplemented"
-    return $ IntVal 0
+evalExpr (SExpr expr) = do
+    intss <- evalStreamExpr expr
+    return $ StreamVal intss
 evalExpr (FExpr expr) = do
     intExprs <- evalFrameExpr expr
     getFrameVarValue intExprs
