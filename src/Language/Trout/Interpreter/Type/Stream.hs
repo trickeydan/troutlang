@@ -29,7 +29,7 @@ evalStreamExpr (StreamIdentifier ident) =  do
     expr <- evalStreamIdentifier ident
     evalStreamExpr expr
 evalStreamExpr (Iterator _ _) = do
-    notImplemented "Iterators are not implemented"
+    notImplemented "BLOCKED: Iterators are not implemented"
     return []
 
 evalStreamIdentifier :: Identifier -> TroutState StreamExpr

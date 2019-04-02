@@ -34,8 +34,8 @@ evalIntIdentifier (Variable name) = do
     val <- troutGetVar name IntType
     return $ troutGetIntFromVarValue val
 evalIntIdentifier (InputIndex _) = do
-    notImplemented "Input Indices not implemented in integer expressions"
+    notImplemented "BLOCKED: Input Indices not implemented in integer expressions"
     return 0
 evalIntIdentifier (ReturnIndex _) = do
-    notImplemented "Return Indices not implemented in integer expressions"
+    notImplemented "BLOCKED: Return Indices not implemented in integer expressions"
     return 0
