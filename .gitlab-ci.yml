@@ -49,6 +49,6 @@ test_pawel:
   cache:
     policy: pull
   script:
-    - "cp .bins/trout-exe cw-automarker/myinterpreter"
+    - "cp .bins/trout-exe cw-automarker/trout"
     - "cd cw-automarker && ./auto"
   allow_failure: true
