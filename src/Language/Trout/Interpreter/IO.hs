@@ -5,7 +5,6 @@ module Language.Trout.Interpreter.IO (
   printToBuffer
 ) where
 
-import Language.Trout.Grammar
 import Prelude hiding (getLine, putStr, putStrLn)
 import Data.Text(Text)
 import Data.Text.IO
