@@ -5,8 +5,8 @@ module Language.Trout.Parser (
   intExpr,
   frameExpr,
   streamExpr,
+  boolExpr,
   expr,
-  condition,
   statement,
   programParser,
   fileParser
@@ -100,6 +100,42 @@ streamExpr = choice
       flatStream <*>
       between (symbol "{") (symbol "}") programParser
 
+boolExpr :: Parser BoolExpr
+boolExpr = makeExprParser exprTerm opTable
+  where
+    exprTerm = choice
+      [ try $ between (symbol "(") (symbol ")") boolExpr
+      , try loneBool
+      , comparison ]
+    opTable = [
+        [ pref "!" Not ],
+        [ inf "|" Or
+        , inf "." And ]
+      ]
+    comparison :: Parser BoolExpr
+    comparison = try equals <|> try notEquals <|> try gt <|> try lt
+      where
+        equals = do
+          left <- expr
+          _ <- symbol "=="
+          Equals left <$> expr
+        notEquals = do
+          left <- expr
+          _ <- symbol "!="
+          NotEquals left <$> expr
+        gt = do
+          left <- expr
+          _ <- symbol "<"
+          GreaterThan left <$> expr
+        lt = do
+          left <- expr
+          _ <- symbol ">"
+          LessThan left <$> expr
+    loneBool :: Parser BoolExpr
+    loneBool = choice
+      [ symbol "True" >> return (Boolean True)
+      , symbol "False" >> return (Boolean False) ]
+
 expr :: Parser Expr
 expr = choice
   [ try $ simplifyExpr <$> nonIdExpr
@@ -124,18 +160,6 @@ expr = choice
     simplifyExpr (FExpr (Frame [i])) = simplifyExpr (IExpr i)
     simplifyExpr e = e
 
-condition :: Parser Condition
-condition = lexeme $ try equals <|> notEquals
-  where
-    equals = do
-      left <- expr
-      _ <- symbol "=="
-      Equals left <$> expr
-    notEquals = do
-      left <- expr
-      _ <- symbol "!="
-      NotEquals left <$> expr
-
 statement :: Parser Statement
 statement = choice
   [ try breaks
@@ -155,7 +179,7 @@ statement = choice
       Assignment i <$> expr
     conditionalIf = do
       _ <- symbol "if"
-      c <- between (symbol "(") (symbol ")") condition
+      c <- between (symbol "(") (symbol ")") boolExpr
       ConditionalIf c <$> statement
     prints = Print <$> expr
 
