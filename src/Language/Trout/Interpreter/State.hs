@@ -3,11 +3,15 @@ module Language.Trout.Interpreter.State where
 import Control.Monad.State
 import Language.Trout.Interpreter.Store
 import Language.Trout.Interpreter.IO
+import Data.Text
 
 type TroutState a = StateT (StreamBuffer, TroutStore) IO a
 
 troutPrint :: Show a => a -> TroutState ()
-troutPrint = liftIO . print
+troutPrint t = do
+    (buffer, store) <- get
+    buffer' <- liftIO . (printToBuffer buffer) . pack . show $ t
+    put (buffer', store)
 
 -- Data Things
 
