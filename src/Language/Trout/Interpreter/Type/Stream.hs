@@ -2,20 +2,34 @@ module Language.Trout.Interpreter.Type.Stream where
 
 import Language.Trout.Interpreter.State
 import Language.Trout.Interpreter.Store
+import Language.Trout.Interpreter.Type.Frame
 import Language.Trout.Grammar
 import Language.Trout.Error
 
-evalStreamExpr :: StreamExpr -> TroutState [FrameExpr]
-evalStreamExpr (Stream fexprs) = return fexprs
+evalStreamExpr :: StreamExpr -> TroutState [[Int]]
+evalStreamExpr (Stream fexprs) = ooF fexprs
+    where
+        ooF :: [FrameExpr] -> TroutState [[Int]]
+        ooF [] = return []
+        ooF (x:xs) = do
+            ints <- getIntListFromFExpr x
+            next <- ooF xs
+            return $ ints:next
+                where
+                    getIntListFromFExpr :: FrameExpr -> TroutState [Int]
+                    getIntListFromFExpr fexpr = do
+                        intexprs <- evalFrameExpr fexpr
+                        reduceIntExprList intexprs
+
 evalStreamExpr (AppendStream expr1 expr2) = do
     st1 <- evalStreamExpr expr1
     st2 <- evalStreamExpr expr2
     return $ st1 ++ st2
-evalStreamExpr (StreamIdentifier _) =  do
-    notImplemented "StreamIdentifiers are not implemented."
-    return []
+evalStreamExpr (StreamIdentifier ident) =  do
+    expr <- evalStreamIdentifier ident
+    evalStreamExpr expr
 evalStreamExpr (Iterator _ _) = do
-    notImplemented "Iterators are not implemented"
+    notImplemented "BLOCKED: Iterators are not implemented"
     return []
 
 evalStreamIdentifier :: Identifier -> TroutState StreamExpr
