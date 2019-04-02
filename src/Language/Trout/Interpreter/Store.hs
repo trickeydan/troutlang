@@ -18,31 +18,26 @@ instance Show VarValue where
     show (StreamVal []) = ""
     show (StreamVal (x:xs)) = showFrame x ++ "\n" ++ show (StreamVal xs)
 
+getValList :: [StoreEntry] -> (VarType -> VarValue -> VarValue) -> String -> VarType -> VarValue
+getValList [] _ n _ = error ("Undefined variable: " ++ n)
+getValList (x:xs) check n vt
+    | fst x == n = check vt (snd x) 
+    | otherwise = getValList xs check n vt
+
 getVar :: TroutStore -> String -> VarType -> VarValue
-getVar (TroutStore store) = getValList store
+getVar (TroutStore store) = getValList store confirmType
     where
-        getValList :: [StoreEntry] -> String -> VarType -> VarValue
-        getValList [] n _ = error ("Undefined variable: " ++ n)
-        getValList (x:xs) n vt
-            | fst x == n = confirmType vt (snd x) 
-            | otherwise = getValList xs n vt
-            where
-                confirmType :: VarType -> VarValue -> VarValue
-                confirmType StreamType (StreamVal s) = StreamVal s
-                confirmType FrameType (FrameVal s) = FrameVal s
-                confirmType IntType (IntVal s) = IntVal s
-                confirmType expected actual = error ("Type mismatch: expecting " ++ show expected ++ " but got " ++ show actual)
+        confirmType :: VarType -> VarValue -> VarValue
+        confirmType StreamType (StreamVal s) = StreamVal s
+        confirmType FrameType (FrameVal s) = FrameVal s
+        confirmType IntType (IntVal s) = IntVal s
+        confirmType expected actual = error ("Type mismatch: expecting " ++ show expected ++ " but got " ++ show actual)
 
--- TODO: Reduce duplicated code.
 getVarAny :: TroutStore -> String -> VarValue
-getVarAny (TroutStore store) = getValList store
+getVarAny (TroutStore store) name = getValList store confirmType name StreamType -- The type is ignored here.
     where
-        getValList :: [StoreEntry] -> String -> VarValue
-        getValList [] n = error ("Undefined variable: " ++ n)
-        getValList (x:xs) n
-            | fst x == n = snd x
-            | otherwise = getValList xs n
-
+        confirmType :: VarType -> VarValue -> VarValue
+        confirmType _ = id
 
 setVar :: TroutStore -> String -> VarValue -> TroutStore
 setVar (TroutStore store) name value = TroutStore $ setValList store name value False []
