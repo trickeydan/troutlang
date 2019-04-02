@@ -26,10 +26,10 @@ build_submission:
   script:
     - "apt update && apt install zip -y"
     - "cd cwk && ./build.sh"
-    - "zip -r submission.zip submission/*"
+    - "cd submission && zip -r submission.zip *"
   artifacts:
     paths:
-      - cwk/submission.zip
+      - cwk/submission/submission.zip
 
 test_stack:
   stage: test
