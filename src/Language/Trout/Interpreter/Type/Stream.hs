@@ -22,11 +22,9 @@ evalStreamExpr (Stream fexprs) = ooF fexprs
                         reduceIntExprList intexprs
 
 evalStreamExpr (AppendStream expr1 expr2) = do
-    -- st1 <- evalStreamExpr expr1
-    -- st2 <- evalStreamExpr expr2
-    -- return $ st1 ++ st2 -- Broken
-    notImplemented "AppendStream is not implemented."
-    return []
+    st1 <- evalStreamExpr expr1
+    st2 <- evalStreamExpr expr2
+    return $ st1 ++ st2
 evalStreamExpr (StreamIdentifier _) =  do
     notImplemented "StreamIdentifiers are not implemented."
     return []
