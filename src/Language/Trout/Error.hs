@@ -15,7 +15,7 @@ typeError m = liftIO $ troutError $ "TypeError: " ++ m
 troutError:: String -> IO ()
 troutError message = do
     setSGR[SetColor Foreground Vivid Red]
-    putStrLn $ message
+    putStrLn message
     setSGR[Reset]
     exitFailure
 

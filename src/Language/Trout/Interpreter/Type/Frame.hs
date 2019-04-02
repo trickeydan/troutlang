@@ -4,6 +4,7 @@ import Language.Trout.Grammar
 import Language.Trout.Error
 import Language.Trout.Interpreter.State
 import Language.Trout.Interpreter.Store
+import Language.Trout.Interpreter.Type.Int
 
 evalFrameExpr :: FrameExpr -> TroutState [IntExpr]
 evalFrameExpr (Frame xs) = return xs
@@ -22,3 +23,15 @@ evalFrameIdentifier (Variable name) = do
 evalFrameIdentifier _ = do
     typeError "Only Integers can be stored in Indices"
     return []
+
+getFrameVarValue :: [IntExpr] -> TroutState VarValue
+getFrameVarValue exprs = do
+    ints <- oof exprs
+    return $ FrameVal ints
+    where
+        oof :: [IntExpr] -> TroutState [Int]
+        oof [] = return []
+        oof (x:xs) = do
+            val <- evalIntExpr x
+            vals <- oof xs
+            return (val:vals)
