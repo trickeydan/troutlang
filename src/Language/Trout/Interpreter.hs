@@ -7,6 +7,7 @@ where
 import Language.Trout.Interpreter.State
 import Language.Trout.Interpreter.Store
 import Language.Trout.Interpreter.Type.Int
+import Language.Trout.Interpreter.Type.Frame
 import Language.Trout.Grammar
 import Language.Trout.Error
 
@@ -32,13 +33,13 @@ evalExpr :: Expr -> TroutState VarValue
 evalExpr (SExpr _) = do
     notImplemented "SExpr evaluation is unimplemented"
     return $ IntVal 0
-evalExpr (VExpr ident) = evalIdentifier ident
-evalExpr (FExpr _) = do
-    notImplemented "FExpr evaluation is unimplemented"
-    return $ IntVal 0
+evalExpr (FExpr expr) = do
+    intExprs <- evalFrameExpr expr
+    getFrameVarValue intExprs
 evalExpr (IExpr expr) = do
     eval <- evalIntExpr expr
     return $ IntVal eval
+evalExpr (VExpr ident) = evalIdentifier ident
 
 evalIdentifier :: Identifier -> TroutState VarValue
 evalIdentifier (Variable name) = troutGetVarAny name
