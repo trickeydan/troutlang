@@ -3,7 +3,7 @@ import Test.Hspec
 import Language.Trout.Interpreter.Store
 
 main :: IO ()
-main = hspec $ do
+main = hspec $
   return ()
   -- describe "Interpreter.State.VarStorage" $ do
   --   it "can store and retrieve Vars" $ do
