@@ -161,7 +161,7 @@ statement = choice
       c <- between (symbol "(") (symbol ")") condition
       s <- statement
       return $ ConditionalIf c s
-    prints = expr >>= return . Print
+    prints = Print <$> expr
 
 programParser :: Parser Program
 programParser = choice
