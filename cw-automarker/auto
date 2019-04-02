@@ -1,6 +1,6 @@
 #!/bin/bash
 
-executable="./myinterpreter"
+executable="./trout"
 
 totalpassed=0
 for i in 1 2 3 4 5
@@ -28,7 +28,7 @@ do
 		echo
 
 
-		#echo "  $executable $prog < $in > $out"
+		echo "  $executable $prog < $in > $out"
 		
 
 		#gtimeout 10s 

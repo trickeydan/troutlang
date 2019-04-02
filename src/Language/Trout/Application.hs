@@ -3,6 +3,7 @@ module Language.Trout.Application (
 ) where
 
 import Language.Trout.Parser(fileParser)
+import Language.Trout.Error(syntaxError, troutError)
 import Language.Trout.Interpreter(executeProgram)
 import Language.Trout.Interpreter.Store
 import Text.Megaparsec(runParser)
@@ -14,12 +15,16 @@ import Prelude hiding(readFile)
 
 runApp :: IO ()
 runApp = do
-  args <- getArgs
-  let file = head args
-  source <- readFile file
-  let parsed = runParser fileParser file source
-  let program = extractProgram parsed
-  void $ runStateT (executeProgram program) (TroutStore [])
+  rawArgs <- getArgs
+  runProgram rawArgs
   where
-    extractProgram (Left bundle) = error $ show bundle
-    extractProgram (Right program) = program
+    runProgram (file:[]) = do
+      source <- readFile file
+      let parsed = runParser fileParser file source
+      program <- extractProgram parsed
+      void $ runStateT (executeProgram program) (TroutStore [])
+      where
+        extractProgram (Left bundle) = syntaxError bundle >> return []
+        extractProgram (Right program) = return program
+    runProgram _ = troutError "Expected exactly one argument: file to interpret."
+

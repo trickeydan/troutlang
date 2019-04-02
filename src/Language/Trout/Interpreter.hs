@@ -16,7 +16,7 @@ executeProgram program = do
     return ()
 
 evalProgram :: Program -> TroutState ()
-evalProgram [] = troutPrint "Execution complete." -- return ()
+evalProgram [] = return ()
 evalProgram (x:xs) = do 
     evalStatement x
     evalProgram xs
