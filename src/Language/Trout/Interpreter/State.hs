@@ -3,7 +3,7 @@ module Language.Trout.Interpreter.State where
 import Control.Monad.State
 import Language.Trout.Interpreter.Store
 
-type TroutState a = StateT TroutStore IO a
+type TroutState a = StateT ((), TroutStore) IO a
 
 troutPrint :: Show a => a -> TroutState ()
 troutPrint = liftIO . print
@@ -12,23 +12,23 @@ troutPrint = liftIO . print
 
 troutDumpState :: TroutState ()
 troutDumpState = do
-    tstate <- get
+    (_, tstate) <- get
     troutPrint tstate
 
 troutSetVar :: String -> VarValue -> TroutState ()
 troutSetVar name value = do
-    beforeStore <- get
-    put $ setVar beforeStore name value
+    (a, beforeStore) <- get
+    put (a, setVar beforeStore name value)
 
 troutGetVar :: String -> VarType -> TroutState VarValue
 troutGetVar name vartype = do
-    store <- get
+    (_, store) <- get
     let val = getVar store name vartype
     return val
 
 troutGetVarAny :: String -> TroutState VarValue
 troutGetVarAny name = do
-    store <- get
+    (_, store) <- get
     let val = getVarAny store name
     return val
 

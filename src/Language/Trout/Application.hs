@@ -22,7 +22,7 @@ runApp = do
       source <- readFile file
       let parsed = runParser fileParser file source
       program <- extractProgram parsed
-      void $ runStateT (executeProgram program) (TroutStore [])
+      void $ runStateT (executeProgram program) ((), TroutStore [])
       where
         extractProgram (Left bundle) = syntaxError bundle >> return []
         extractProgram (Right program) = return program
