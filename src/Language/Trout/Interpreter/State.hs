@@ -34,7 +34,11 @@ blank = (
         TroutStore []
     )
 
-troutPrint :: Show a => a -> TroutState ()
+troutPrint :: VarValue -> TroutState ()
+troutPrint (StreamVal []) = return ()
+troutPrint (StreamVal (x:xs)) = do
+    troutPrint (FrameVal x)
+    troutPrint (StreamVal xs)
 troutPrint t = do
     (buffer, sc, PrintContext pc, store) <- get
     when pc $ do
@@ -115,7 +119,7 @@ getStreamContext = do
 troutDumpState :: TroutState ()
 troutDumpState = do
     (_, _, _, tstate) <- get
-    troutPrint tstate
+    (liftIO . print) tstate
 
 troutSetVar :: String -> VarValue -> TroutState ()
 troutSetVar name value = do
