@@ -54,7 +54,13 @@ evalExpr (IExpr expr) = do
     let out = IntVal eval
     troutPrint out
     return out
-evalExpr (VExpr ident) = evalIdentifier ident
+evalExpr (VExpr ident) = do
+    p <- getPrintContext
+    setPrintContext (PrintContext False)
+    out <- evalIdentifier ident
+    setPrintContext p
+    troutPrint out
+    return out
 
 evalIdentifier :: Identifier -> TroutState VarValue
 evalIdentifier (Variable name) = troutGetVarAny name
