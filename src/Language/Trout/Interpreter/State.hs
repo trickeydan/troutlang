@@ -55,7 +55,7 @@ troutRead = do
         extract (Left _) = error "Error parsing standard input"
         extract (Right a) = a
         unwrap (Frame []) = []
-        unwrap (Frame ((IntNum i):xs)) = i : unwrap (Frame xs)
+        unwrap (Frame (IntNum i : xs)) = i : unwrap (Frame xs)
         unwrap _ = error "Non-integer in standard input."
 
 troutSetIndex :: Int -> Int -> TroutState ()

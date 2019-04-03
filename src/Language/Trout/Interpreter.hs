@@ -13,9 +13,7 @@ import Language.Trout.Grammar
 import Language.Trout.Error
 import System.Exit(exitSuccess)
 import Control.Monad.State
-import Control.Monad(when)
-
-import Control.Monad(void)
+import Control.Monad(when, void)
 
 executeProgram :: Program -> TroutState ()
 executeProgram program = do
@@ -112,8 +110,7 @@ evalPrintStatement expr = do
 evalConditional :: BoolExpr -> Statement -> TroutState ()
 evalConditional bexpr stmt = do
     conditionMet <- evalBoolExpr bexpr
-    when conditionMet $ do
-        evalStatement stmt
+    when conditionMet $ evalStatement stmt
 
 evalBoolExpr :: BoolExpr -> TroutState Bool
 evalBoolExpr (Boolean b) = return b
