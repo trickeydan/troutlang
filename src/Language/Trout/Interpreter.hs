@@ -65,9 +65,10 @@ evalIdentifier (InputIndex iiexpr) = do
     where
         fromII index (IterationFrame is) = is !! index
         fromII _ _ = error "Input index not found in input stream."
-evalIdentifier (ReturnIndex _ ) = do
-    notImplemented "BLOCKED: Evaluation of output indices"
-    return $ IntVal 0
+evalIdentifier (ReturnIndex riexpr ) = do
+    i <- evalIntExpr riexpr
+    v <- troutGetIndex i
+    return $ IntVal v
 
 -- Assignment Statement
 
