@@ -10,6 +10,9 @@ type TroutState a = StateT (StreamBuffer, StreamContext, TroutStore) IO a
 
 newtype StreamContext = StreamContext (Maybe StreamExpr)
 
+blank :: (StreamBuffer, StreamContext, TroutStore)
+blank = ((InBuffer [], OutBuffer []), StreamContext Nothing, TroutStore [])
+
 troutPrint :: Show a => a -> TroutState ()
 troutPrint t = do
     (buffer, context, store) <- get
