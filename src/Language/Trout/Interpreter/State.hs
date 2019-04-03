@@ -6,8 +6,9 @@ import Language.Trout.Interpreter.IO
 import Language.Trout.Grammar
 import Language.Trout.Parser(stdInputFrameExpr)
 import Text.Megaparsec(runParser)
-import Data.Text hiding (empty)
-import Data.HashMap.Strict
+import Data.Text hiding (empty, map, takeWhile)
+import Data.HashMap.Strict hiding (map)
+import Prelude hiding (lookup)
 
 -- In future, refactor to use record syntax.
 type TroutState a = StateT (StreamBuffer, StreamContext, PrintContext, TroutStore) IO a
@@ -39,6 +40,29 @@ troutRead = do
     where
         extract (Left a) = error "Error parsing standard input"
         extract (Right a) = a
+
+troutSetIndex :: Int -> IntExpr -> TroutState ()
+troutSetIndex i e = do
+    (b, StreamContext (str, hm), pc, s) <- get
+    put (b, StreamContext (str, insert i e hm), pc, s)
+
+troutGetIndex :: Int -> TroutState IntExpr
+troutGetIndex i = do
+    (_, StreamContext (_, hm), _, _) <- get
+    let v = lookup i hm
+    output v
+    where
+        output Nothing = error "Empty index accessed."
+        output (Just x) = return x
+
+troutGetOutputFrame :: TroutState FrameExpr
+troutGetOutputFrame = do
+    (_, StreamContext (_, hm), _, _) <- get
+    return $ Frame $ chopMaybes $ map (flip lookup hm) [0..]
+    where
+        chopMaybes [] = []
+        chopMaybes (Just x : xs) = x : chopMaybes xs
+        chopMaybes (Nothing : _) = []
 
 setPrintContext :: PrintContext -> TroutState ()
 setPrintContext context = do
