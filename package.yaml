@@ -24,6 +24,7 @@ dependencies:
 - text
 - mtl
 - QuickCheck
+- unordered-containers
 
 library:
   source-dirs: src

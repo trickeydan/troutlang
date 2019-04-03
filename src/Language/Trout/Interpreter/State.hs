@@ -6,16 +6,22 @@ import Language.Trout.Interpreter.IO
 import Language.Trout.Grammar
 import Language.Trout.Parser(stdInputFrameExpr)
 import Text.Megaparsec(runParser)
-import Data.Text
+import Data.Text hiding (empty)
+import Data.HashMap.Strict
 
 -- In future, refactor to use record syntax.
 type TroutState a = StateT (StreamBuffer, StreamContext, PrintContext, TroutStore) IO a
 
-newtype StreamContext = StreamContext (Maybe StreamExpr)
+data StreamContext = StreamContext (Maybe StreamExpr, HashMap Int IntExpr)
 newtype PrintContext = PrintContext Bool
 
 blank :: (StreamBuffer, StreamContext, PrintContext, TroutStore)
-blank = ((InBuffer [], OutBuffer []), StreamContext Nothing, PrintContext False, TroutStore [])
+blank = (
+        (InBuffer [], OutBuffer []),
+        StreamContext (Nothing, empty),
+        PrintContext False,
+        TroutStore []
+    )
 
 troutPrint :: Show a => a -> TroutState ()
 troutPrint t = do
