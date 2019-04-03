@@ -14,7 +14,7 @@ import Prelude hiding (lookup)
 -- In future, refactor to use record syntax.
 type TroutState a = StateT (StreamBuffer, StreamContext, PrintContext, TroutStore) IO a
 
-newtype StreamContext = StreamContext (IterableStream, HashMap Int IntExpr)
+newtype StreamContext = StreamContext (IterableStream, HashMap Int Int)
 data IterableStream =
     BlankStream
     | NormalStream VarValue
@@ -56,7 +56,7 @@ troutRead = do
         extract (Left _) = error "Error parsing standard input"
         extract (Right a) = a
 
-troutSetIndex :: Int -> IntExpr -> TroutState ()
+troutSetIndex :: Int -> Int -> TroutState ()
 troutSetIndex i e = do
     (b, StreamContext (str, hm), pc, s) <- get
     if
@@ -66,7 +66,7 @@ troutSetIndex i e = do
     else
         put (b, StreamContext (str, insert i e hm), pc, s)
 
-troutGetIndex :: Int -> TroutState IntExpr
+troutGetIndex :: Int -> TroutState Int
 troutGetIndex i = do
     (_, StreamContext (str, hm), _, _) <- get
     let v = lookup i hm
@@ -80,7 +80,7 @@ troutGetIndex i = do
         output Nothing = error "Empty index accessed."
         output (Just x) = return x
 
-troutGetOutputFrame :: TroutState FrameExpr
+troutGetOutputFrame :: TroutState [Int]
 troutGetOutputFrame = do
     (_, StreamContext (str, hm), _, _) <- get
     if
@@ -88,8 +88,9 @@ troutGetOutputFrame = do
     then
         error "Cannot output iterator frame outside iterator."
     else
-        return $ Frame $ chopMaybes $ map (`lookup` hm) [0..]
+        return $ chopMaybes $ map (`lookup` hm) [0..]
     where
+        chopMaybes :: [Maybe Int] -> [Int]
         chopMaybes [] = []
         chopMaybes (Just x : xs) = x : chopMaybes xs
         chopMaybes (Nothing : _) = []

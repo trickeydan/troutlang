@@ -71,8 +71,14 @@ evalAssignment :: Identifier -> Expr -> TroutState ()
 evalAssignment (Variable name) expr = do
     val <- evalExpr expr
     troutSetVar name val
-evalAssignment (InputIndex _) _ = notImplemented "BLOCKED: Assignment to input indices"
-evalAssignment _ _ = typeError "Only assignment to variables or input indices is allowed."
+evalAssignment (ReturnIndex riexpr) e = do
+    i <- evalIntExpr riexpr
+    v <- evalExpr e
+    writeIndex i v
+    where
+        writeIndex i (IntVal r) = troutSetIndex i r
+        writeIndex _ _ = typeError "Only integers may be stored in return indices."
+evalAssignment _ _ = typeError "Only assignment to variables or return indices is allowed."
 
 -- NullAssignment Statement
 
