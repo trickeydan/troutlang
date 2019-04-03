@@ -31,6 +31,8 @@ instance Eq VarValue where
 
     StreamVal a == StreamVal b = a == b
 
+    _ == _ = False
+
 getValList :: [StoreEntry] -> (VarType -> VarValue -> VarValue) -> String -> VarType -> VarValue
 getValList [] _ n _ = error ("Undefined variable: " ++ n)
 getValList (x:xs) check n vt
