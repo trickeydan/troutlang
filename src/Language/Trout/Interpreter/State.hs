@@ -9,19 +9,27 @@ import Language.Trout.Parser(stdInputFrameExpr)
 import Text.Megaparsec(runParser)
 import Data.Text hiding (empty, map, takeWhile)
 import Data.HashMap.Strict hiding (map)
-import Data.Maybe(isNothing)
 import Prelude hiding (lookup)
 
 -- In future, refactor to use record syntax.
 type TroutState a = StateT (StreamBuffer, StreamContext, PrintContext, TroutStore) IO a
 
-newtype StreamContext = StreamContext (Maybe StreamExpr, HashMap Int IntExpr)
+newtype StreamContext = StreamContext (IterableStream, HashMap Int IntExpr)
+data IterableStream =
+    BlankStream
+    | NormalStream VarValue
+    | IterableInput
+    deriving(Eq, Show)
 newtype PrintContext = PrintContext Bool
+
+isBlank :: IterableStream -> Bool
+isBlank BlankStream = True
+isBlank _ = False
 
 blank :: (StreamBuffer, StreamContext, PrintContext, TroutStore)
 blank = (
         (InBuffer [], OutBuffer []),
-        StreamContext (Nothing, empty),
+        StreamContext (BlankStream, empty),
         PrintContext False,
         TroutStore []
     )
@@ -48,7 +56,7 @@ troutSetIndex :: Int -> IntExpr -> TroutState ()
 troutSetIndex i e = do
     (b, StreamContext (str, hm), pc, s) <- get
     if
-        isNothing str
+        isBlank str
     then
         error "Cannot set stream index outside iterator."
     else
@@ -59,7 +67,7 @@ troutGetIndex i = do
     (_, StreamContext (str, hm), _, _) <- get
     let v = lookup i hm
     if
-        isNothing str
+        isBlank str
     then
         error "Cannot read stream index outside iterator."
     else
@@ -72,7 +80,7 @@ troutGetOutputFrame :: TroutState FrameExpr
 troutGetOutputFrame = do
     (_, StreamContext (str, hm), _, _) <- get
     if
-        isNothing str
+        isBlank str
     then
         error "Cannot output iterator frame outside iterator."
     else

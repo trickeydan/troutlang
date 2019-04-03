@@ -2,8 +2,8 @@ module Language.Trout.Interpreter.Store where
 
 -- Everything in this file should be pure.
 
-data VarType = StreamType | FrameType | IntType deriving Show
-data VarValue = StreamVal [[Int]] | FrameVal [Int] | IntVal Int
+data VarType = StreamType | FrameType | IntType deriving (Eq, Show)
+data VarValue = StreamVal [[Int]] | FrameVal [Int] | IntVal Int deriving Eq
 
 type StoreEntry = (String, VarValue)
 newtype TroutStore = TroutStore [StoreEntry] deriving Show
