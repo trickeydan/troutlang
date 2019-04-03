@@ -13,7 +13,7 @@ import System.IO(isEOF)
 import System.Exit(exitSuccess)
 
 type StreamBuffer = (InBuffer, OutBuffer)
-newtype InBuffer = InBuffer [Text]
+newtype InBuffer = InBuffer [Maybe Text]
 newtype OutBuffer = OutBuffer [Text]
 
 printToBuffer :: StreamBuffer -> Text -> IO StreamBuffer
@@ -24,7 +24,7 @@ printToBuffer (InBuffer i, OutBuffer o) t = do
 
 extendBuffer :: StreamBuffer -> IO StreamBuffer
 extendBuffer (InBuffer i, OutBuffer o) = fetchLine >>=
-  (\l -> return (InBuffer (l:i), OutBuffer o))
+  (\l -> return (InBuffer (Just l : i), OutBuffer o))
 
 fillBuffer :: StreamBuffer -> IO StreamBuffer
 fillBuffer b@(InBuffer i, OutBuffer o) =
@@ -32,7 +32,7 @@ fillBuffer b@(InBuffer i, OutBuffer o) =
     length i < length o
   then do
     l <- fetchLine
-    fillBuffer (InBuffer (l:i), OutBuffer o)
+    fillBuffer (InBuffer (Just l : i), OutBuffer o)
   else
     return b
 
