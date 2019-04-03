@@ -8,6 +8,7 @@ import Language.Trout.Parser(stdInputFrameExpr)
 import Text.Megaparsec(runParser)
 import Data.Text
 
+-- In future, refactor to use record syntax.
 type TroutState a = StateT (StreamBuffer, StreamContext, PrintContext, TroutStore) IO a
 
 newtype StreamContext = StreamContext (Maybe StreamExpr)
