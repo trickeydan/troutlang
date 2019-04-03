@@ -88,7 +88,7 @@ stdInputFrameExpr = Frame <$> intList
   where
     intList :: Parser [IntExpr]
     intList = (:) <$>
-      (fmap IntNum $ L.signed spaceConsumer $ lexeme L.decimal) <*>
+      fmap IntNum ( L.signed spaceConsumer $ lexeme L.decimal) <*>
       choice
         [ try intList
         , return [] ]

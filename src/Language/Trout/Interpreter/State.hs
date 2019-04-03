@@ -1,6 +1,7 @@
 module Language.Trout.Interpreter.State where
 
 import Control.Monad.State
+import Control.Monad(when)
 import Language.Trout.Interpreter.Store
 import Language.Trout.Interpreter.IO
 import Language.Trout.Grammar
@@ -8,12 +9,13 @@ import Language.Trout.Parser(stdInputFrameExpr)
 import Text.Megaparsec(runParser)
 import Data.Text hiding (empty, map, takeWhile)
 import Data.HashMap.Strict hiding (map)
+import Data.Maybe(isNothing)
 import Prelude hiding (lookup)
 
 -- In future, refactor to use record syntax.
 type TroutState a = StateT (StreamBuffer, StreamContext, PrintContext, TroutStore) IO a
 
-data StreamContext = StreamContext (Maybe StreamExpr, HashMap Int IntExpr)
+newtype StreamContext = StreamContext (Maybe StreamExpr, HashMap Int IntExpr)
 newtype PrintContext = PrintContext Bool
 
 blank :: (StreamBuffer, StreamContext, PrintContext, TroutStore)
@@ -27,13 +29,9 @@ blank = (
 troutPrint :: Show a => a -> TroutState ()
 troutPrint t = do
     (buffer, sc, PrintContext pc, store) <- get
-    if
-        pc
-    then do
+    when pc $ do
         buffer' <- liftIO . printToBuffer buffer . pack . show $ t
         put (buffer', sc, PrintContext pc, store)
-    else
-        return ()
 
 troutRead :: TroutState FrameExpr
 troutRead = do
@@ -50,7 +48,7 @@ troutSetIndex :: Int -> IntExpr -> TroutState ()
 troutSetIndex i e = do
     (b, StreamContext (str, hm), pc, s) <- get
     if
-        str == Nothing
+        isNothing str
     then
         error "Cannot set stream index outside iterator."
     else
@@ -61,7 +59,7 @@ troutGetIndex i = do
     (_, StreamContext (str, hm), _, _) <- get
     let v = lookup i hm
     if
-        str == Nothing
+        isNothing str
     then
         error "Cannot read stream index outside iterator."
     else
@@ -74,11 +72,11 @@ troutGetOutputFrame :: TroutState FrameExpr
 troutGetOutputFrame = do
     (_, StreamContext (str, hm), _, _) <- get
     if
-        str == Nothing
+        isNothing str
     then
         error "Cannot output iterator frame outside iterator."
     else
-        return $ Frame $ chopMaybes $ map (flip lookup hm) [0..]
+        return $ Frame $ chopMaybes $ map (`lookup` hm) [0..]
     where
         chopMaybes [] = []
         chopMaybes (Just x : xs) = x : chopMaybes xs
