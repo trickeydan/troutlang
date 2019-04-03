@@ -8,7 +8,6 @@ import Language.Trout.Interpreter.State
 import Language.Trout.Interpreter.Store
 import Language.Trout.Interpreter.Type.Int
 import Language.Trout.Interpreter.Type.Frame
-import Language.Trout.Interpreter.Type.Stream
 import Language.Trout.Grammar
 import Language.Trout.Error
 import System.Exit(exitSuccess)
@@ -141,3 +140,28 @@ evalBoolExpr (And a b) = do
 evalBoolExpr (Not a) = do
     a' <- evalBoolExpr a
     return $ not a'
+
+-- Stream Handling
+
+evalStreamExpr :: StreamExpr -> TroutState [[Int]]
+evalStreamExpr (Stream []) = return []
+evalStreamExpr (Stream (f:fs)) = do
+    p <- getPrintContext
+    setPrintContext (PrintContext False)
+    (FrameVal f') <- evalExpr (FExpr f)
+    setPrintContext p
+    troutPrint (FrameVal f')
+    restOfTheOwl <- evalStreamExpr (Stream fs)
+    return $ f' : restOfTheOwl
+evalStreamExpr InputStream = do
+    f <- troutRead
+    troutPrint (FrameVal f)
+    remainingIn <- evalStreamExpr InputStream
+    return (f:remainingIn)
+evalStreamExpr (AppendStream s1 s2) = do
+    s1' <- evalStreamExpr s1
+    s2' <- evalStreamExpr s2
+    return (s1' ++ s2')
+evalStreamExpr (StreamIdentifier i) = do
+    (StreamVal r) <- evalIdentifier i
+    return r
