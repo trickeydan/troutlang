@@ -58,9 +58,13 @@ evalExpr (VExpr ident) = evalIdentifier ident
 
 evalIdentifier :: Identifier -> TroutState VarValue
 evalIdentifier (Variable name) = troutGetVarAny name
-evalIdentifier (InputIndex _) = do
-    notImplemented "BLOCKED: Evaluation of input indices"
-    return $ IntVal 0
+evalIdentifier (InputIndex iiexpr) = do
+    i <- evalIntExpr iiexpr
+    StreamContext (fr, _) <- getStreamContext
+    return $ IntVal $ fromII i fr
+    where
+        fromII index (IterationFrame is) = is !! index
+        fromII _ _ = error "Input index not found in input stream."
 evalIdentifier (ReturnIndex _ ) = do
     notImplemented "BLOCKED: Evaluation of output indices"
     return $ IntVal 0
