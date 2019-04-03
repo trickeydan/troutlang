@@ -87,10 +87,20 @@ setPrintContext context = do
     (b, sc, _, s) <- get
     put (b, sc, context, s)
 
+getPrintContext :: TroutState PrintContext
+getPrintContext = do
+    (_, _, pc, _) <- get
+    return pc
+    
 setStreamContext :: StreamContext -> TroutState ()
 setStreamContext context = do
     (b, _, pc, s) <- get
     put (b, context, pc, s)
+
+getStreamContext :: TroutState StreamContext
+getStreamContext = do
+    (_, sc, _ , _) <- get
+    return sc
 
 -- Data Things
 
