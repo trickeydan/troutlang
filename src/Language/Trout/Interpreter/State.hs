@@ -26,9 +26,14 @@ blank = (
 
 troutPrint :: Show a => a -> TroutState ()
 troutPrint t = do
-    (buffer, context, pc, store) <- get
-    buffer' <- liftIO . printToBuffer buffer . pack . show $ t
-    put (buffer', context, pc, store)
+    (buffer, sc, PrintContext pc, store) <- get
+    if
+        pc
+    then do
+        buffer' <- liftIO . printToBuffer buffer . pack . show $ t
+        put (buffer', sc, PrintContext pc, store)
+    else
+        return ()
 
 troutRead :: TroutState FrameExpr
 troutRead = do
