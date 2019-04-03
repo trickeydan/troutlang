@@ -40,7 +40,7 @@ evalStreamIdentifier (InputIndex _) = do
     typeError "An input index is only of type int and is not compatible with type stream."
     return $ Stream []
 evalStreamIdentifier (ReturnIndex _) = do
-    typeError "An return index is only of type int and is not compatible with type stream."
+    typeError "A return index is only of type int and is not compatible with type stream."
     return $ Stream []
 evalStreamIdentifier (Variable name) = do
     val <- troutGetVar name StreamType
