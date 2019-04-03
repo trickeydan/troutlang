@@ -45,16 +45,19 @@ troutPrint t = do
         buffer' <- liftIO . printToBuffer buffer . pack . show $ t
         put (buffer', sc, PrintContext pc, store)
 
-troutRead :: TroutState FrameExpr
+troutRead :: TroutState [Int]
 troutRead = do
     (buffer, sc, pc, store) <- get
     (buffer', txt) <- liftIO $ extractLatestInput buffer
     let f = extract $ runParser stdInputFrameExpr "stdin" txt
     put (buffer', sc, pc, store)
-    return f
+    return $ unwrap f
     where
         extract (Left _) = error "Error parsing standard input"
         extract (Right a) = a
+        unwrap (Frame []) = []
+        unwrap (Frame ((IntNum i):xs)) = i : unwrap (Frame xs)
+        unwrap _ = error "Non-integer in standard input."
 
 troutSetIndex :: Int -> Int -> TroutState ()
 troutSetIndex i e = do
