@@ -49,21 +49,36 @@ troutRead = do
 troutSetIndex :: Int -> IntExpr -> TroutState ()
 troutSetIndex i e = do
     (b, StreamContext (str, hm), pc, s) <- get
-    put (b, StreamContext (str, insert i e hm), pc, s)
+    if
+        str == Nothing
+    then
+        error "Cannot set stream index outside iterator."
+    else
+        put (b, StreamContext (str, insert i e hm), pc, s)
 
 troutGetIndex :: Int -> TroutState IntExpr
 troutGetIndex i = do
-    (_, StreamContext (_, hm), _, _) <- get
+    (_, StreamContext (str, hm), _, _) <- get
     let v = lookup i hm
-    output v
+    if
+        str == Nothing
+    then
+        error "Cannot read stream index outside iterator."
+    else
+        output v
     where
         output Nothing = error "Empty index accessed."
         output (Just x) = return x
 
 troutGetOutputFrame :: TroutState FrameExpr
 troutGetOutputFrame = do
-    (_, StreamContext (_, hm), _, _) <- get
-    return $ Frame $ chopMaybes $ map (flip lookup hm) [0..]
+    (_, StreamContext (str, hm), _, _) <- get
+    if
+        str == Nothing
+    then
+        error "Cannot output iterator frame outside iterator."
+    else
+        return $ Frame $ chopMaybes $ map (flip lookup hm) [0..]
     where
         chopMaybes [] = []
         chopMaybes (Just x : xs) = x : chopMaybes xs
