@@ -17,7 +17,7 @@ type TroutState a = StateT (StreamBuffer, StreamContext, PrintContext, TroutStor
 newtype StreamContext = StreamContext (IterableStream, HashMap Int Int)
 data IterableStream =
     BlankStream
-    | IterationFram [Int]
+    | IterationFrame [Int]
     deriving(Eq, Show)
 newtype PrintContext = PrintContext Bool
 
