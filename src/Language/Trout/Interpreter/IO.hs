@@ -3,7 +3,8 @@ module Language.Trout.Interpreter.IO (
   InBuffer(InBuffer),
   OutBuffer(OutBuffer),
   printToBuffer,
-  extendBuffer
+  extendBuffer,
+  extractLatestInput
 ) where
 
 import Prelude hiding (getLine, putStr, putStrLn)
@@ -25,6 +26,27 @@ printToBuffer (InBuffer i, OutBuffer o) t = do
 extendBuffer :: StreamBuffer -> IO StreamBuffer
 extendBuffer (InBuffer i, OutBuffer o) = fetchLine >>=
   (\l -> return (InBuffer (Just l : i), OutBuffer o))
+
+extractLatestInput :: StreamBuffer -> IO (StreamBuffer, Text)
+extractLatestInput b@(InBuffer [], _) =
+  extendBuffer b >>= extractLatestInput
+extractLatestInput b@(InBuffer i, o ) =
+  if
+    needExtending i
+  then
+    extendBuffer b >>= extractLatestInput
+  else do
+    let (i', value) = extractLast i
+    return ((InBuffer i', o), value)
+  where
+    needExtending [] = True
+    needExtending [Just _] = False
+    needExtending [Nothing] = True
+    needExtending (x:xs) = needExtending xs
+
+    extractLast [Just txt] = ([Nothing], txt)
+    extractLast (x:xs) = (x : fst r, snd r)
+      where r = extractLast xs
 
 fillBuffer :: StreamBuffer -> IO StreamBuffer
 fillBuffer b@(InBuffer i, OutBuffer o) =
