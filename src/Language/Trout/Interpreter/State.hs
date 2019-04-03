@@ -3,37 +3,40 @@ module Language.Trout.Interpreter.State where
 import Control.Monad.State
 import Language.Trout.Interpreter.Store
 import Language.Trout.Interpreter.IO
+import Language.Trout.Grammar
 import Data.Text
 
-type TroutState a = StateT (StreamBuffer, TroutStore) IO a
+type TroutState a = StateT (StreamBuffer, StreamContext, TroutStore) IO a
+
+newtype StreamContext = StreamContext (Maybe StreamExpr)
 
 troutPrint :: Show a => a -> TroutState ()
 troutPrint t = do
-    (buffer, store) <- get
+    (buffer, context, store) <- get
     buffer' <- liftIO . printToBuffer buffer . pack . show $ t
-    put (buffer', store)
+    put (buffer', context, store)
 
 -- Data Things
 
 troutDumpState :: TroutState ()
 troutDumpState = do
-    (_, tstate) <- get
+    (_, _, tstate) <- get
     troutPrint tstate
 
 troutSetVar :: String -> VarValue -> TroutState ()
 troutSetVar name value = do
-    (a, beforeStore) <- get
-    put (a, setVar beforeStore name value)
+    (a, c, beforeStore) <- get
+    put (a, c, setVar beforeStore name value)
 
 troutGetVar :: String -> VarType -> TroutState VarValue
 troutGetVar name vartype = do
-    (_, store) <- get
+    (_, _, store) <- get
     let val = getVar store name vartype
     return val
 
 troutGetVarAny :: String -> TroutState VarValue
 troutGetVarAny name = do
-    (_, store) <- get
+    (_, _, store) <- get
     let val = getVarAny store name
     return val
 
