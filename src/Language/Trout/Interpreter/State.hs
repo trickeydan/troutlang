@@ -34,6 +34,16 @@ troutRead = do
         extract (Left a) = error "Error parsing standard input"
         extract (Right a) = a
 
+setPrintContext :: PrintContext -> TroutState ()
+setPrintContext context = do
+    (b, sc, pc, s) <- get
+    put (b, sc, context, s)
+
+setStreamContext :: StreamContext -> TroutState ()
+setStreamContext context = do
+    (b, sc, pc, s) <- get
+    put (b, context, pc, s)
+
 -- Data Things
 
 troutDumpState :: TroutState ()
