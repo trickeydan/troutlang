@@ -9,57 +9,71 @@ import Language.Trout.Parser(stdInputFrameExpr)
 import Text.Megaparsec(runParser)
 import Data.Text hiding (empty, map, takeWhile)
 import Data.HashMap.Strict hiding (map)
-import Data.Maybe(isNothing)
 import Prelude hiding (lookup)
 
 -- In future, refactor to use record syntax.
 type TroutState a = StateT (StreamBuffer, StreamContext, PrintContext, TroutStore) IO a
 
-newtype StreamContext = StreamContext (Maybe StreamExpr, HashMap Int IntExpr)
+newtype StreamContext = StreamContext (IterableStream, HashMap Int Int)
+data IterableStream =
+    BlankStream
+    | IterationFrame [Int]
+    deriving(Eq, Show)
 newtype PrintContext = PrintContext Bool
+
+isBlank :: IterableStream -> Bool
+isBlank BlankStream = True
+isBlank _ = False
 
 blank :: (StreamBuffer, StreamContext, PrintContext, TroutStore)
 blank = (
         (InBuffer [], OutBuffer []),
-        StreamContext (Nothing, empty),
+        StreamContext (BlankStream, empty),
         PrintContext False,
         TroutStore []
     )
 
-troutPrint :: Show a => a -> TroutState ()
+troutPrint :: VarValue -> TroutState ()
+troutPrint (StreamVal []) = return ()
+troutPrint (StreamVal (x:xs)) = do
+    troutPrint (FrameVal x)
+    troutPrint (StreamVal xs)
 troutPrint t = do
     (buffer, sc, PrintContext pc, store) <- get
     when pc $ do
         buffer' <- liftIO . printToBuffer buffer . pack . show $ t
         put (buffer', sc, PrintContext pc, store)
 
-troutRead :: TroutState FrameExpr
+troutRead :: TroutState [Int]
 troutRead = do
     (buffer, sc, pc, store) <- get
     (buffer', txt) <- liftIO $ extractLatestInput buffer
     let f = extract $ runParser stdInputFrameExpr "stdin" txt
     put (buffer', sc, pc, store)
-    return f
+    return $ unwrap f
     where
         extract (Left _) = error "Error parsing standard input"
         extract (Right a) = a
+        unwrap (Frame []) = []
+        unwrap (Frame (IntNum i : xs)) = i : unwrap (Frame xs)
+        unwrap _ = error "Non-integer in standard input."
 
-troutSetIndex :: Int -> IntExpr -> TroutState ()
+troutSetIndex :: Int -> Int -> TroutState ()
 troutSetIndex i e = do
     (b, StreamContext (str, hm), pc, s) <- get
     if
-        isNothing str
+        isBlank str
     then
         error "Cannot set stream index outside iterator."
     else
         put (b, StreamContext (str, insert i e hm), pc, s)
 
-troutGetIndex :: Int -> TroutState IntExpr
+troutGetIndex :: Int -> TroutState Int
 troutGetIndex i = do
     (_, StreamContext (str, hm), _, _) <- get
     let v = lookup i hm
     if
-        isNothing str
+        isBlank str
     then
         error "Cannot read stream index outside iterator."
     else
@@ -68,16 +82,17 @@ troutGetIndex i = do
         output Nothing = error "Empty index accessed."
         output (Just x) = return x
 
-troutGetOutputFrame :: TroutState FrameExpr
+troutGetOutputFrame :: TroutState [Int]
 troutGetOutputFrame = do
     (_, StreamContext (str, hm), _, _) <- get
     if
-        isNothing str
+        isBlank str
     then
         error "Cannot output iterator frame outside iterator."
     else
-        return $ Frame $ chopMaybes $ map (`lookup` hm) [0..]
+        return $ chopMaybes $ map (`lookup` hm) [0..]
     where
+        chopMaybes :: [Maybe Int] -> [Int]
         chopMaybes [] = []
         chopMaybes (Just x : xs) = x : chopMaybes xs
         chopMaybes (Nothing : _) = []
@@ -107,7 +122,7 @@ getStreamContext = do
 troutDumpState :: TroutState ()
 troutDumpState = do
     (_, _, _, tstate) <- get
-    troutPrint tstate
+    (liftIO . print) tstate
 
 troutSetVar :: String -> VarValue -> TroutState ()
 troutSetVar name value = do

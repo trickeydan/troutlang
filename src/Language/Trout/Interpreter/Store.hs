@@ -2,7 +2,7 @@ module Language.Trout.Interpreter.Store where
 
 -- Everything in this file should be pure.
 
-data VarType = StreamType | FrameType | IntType deriving Show
+data VarType = StreamType | FrameType | IntType deriving (Eq, Show)
 data VarValue = StreamVal [[Int]] | FrameVal [Int] | IntVal Int
 
 type StoreEntry = (String, VarValue)
@@ -17,6 +17,21 @@ instance Show VarValue where
     show (FrameVal xs) = showFrame xs
     show (StreamVal []) = ""
     show (StreamVal (x:xs)) = showFrame x ++ "\n" ++ show (StreamVal xs)
+
+instance Eq VarValue where
+    IntVal a == IntVal b = a == b
+    FrameVal [a] == IntVal b = a == b
+    IntVal a == FrameVal [b] = a == b
+    StreamVal [[a]] == IntVal b = a == b
+    IntVal a == StreamVal [[b]] = a == b
+
+    FrameVal a == FrameVal b = a == b
+    StreamVal [a] == FrameVal b = a == b
+    FrameVal a == StreamVal [b] = a == b
+
+    StreamVal a == StreamVal b = a == b
+
+    _ == _ = False
 
 getValList :: [StoreEntry] -> (VarType -> VarValue -> VarValue) -> String -> VarType -> VarValue
 getValList [] _ n _ = error ("Undefined variable: " ++ n)
