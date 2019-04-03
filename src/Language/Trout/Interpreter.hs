@@ -40,7 +40,11 @@ evalExpr (FExpr expr) = do
     intExprs <- evalFrameExpr expr
     getFrameVarValue intExprs
 evalExpr (IExpr expr) = do
+    p <- getPrintContext
+    setPrintContext (PrintContext False)
     eval <- evalIntExpr expr
+    setPrintContext p
+    troutPrint eval
     return $ IntVal eval
 evalExpr (VExpr ident) = evalIdentifier ident
 
