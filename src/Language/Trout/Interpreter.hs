@@ -37,8 +37,13 @@ evalExpr (SExpr expr) = do
     intss <- evalStreamExpr expr
     return $ StreamVal intss
 evalExpr (FExpr expr) = do
+    p <- getPrintContext
+    setPrintContext (PrintContext False)
     intExprs <- evalFrameExpr expr
-    getFrameVarValue intExprs
+    setPrintContext p
+    vv <- getFrameVarValue intExprs
+    troutPrint vv
+    return vv
 evalExpr (IExpr expr) = do
     p <- getPrintContext
     setPrintContext (PrintContext False)
