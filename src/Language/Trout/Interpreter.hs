@@ -71,5 +71,6 @@ evalNullAssignment expr = void $ evalExpr expr
 
 evalPrintStatement:: Expr -> TroutState ()
 evalPrintStatement expr = do
-    val <-  evalExpr expr
-    troutPrint val
+    setPrintContext $ PrintContext True
+    evalExpr expr
+    setPrintContext $ PrintContext False
