@@ -11,6 +11,8 @@ import Language.Trout.Interpreter.Type.Frame
 import Language.Trout.Interpreter.Type.Stream
 import Language.Trout.Grammar
 import Language.Trout.Error
+import System.Exit(exitSuccess)
+import Control.Monad.State
 
 import Control.Monad(void)
 
@@ -30,7 +32,7 @@ evalStatement (Assignment ident expr) = evalAssignment ident expr
 evalStatement (NullAssignment expr) = evalNullAssignment expr
 evalStatement (ConditionalIf _ _ ) = notImplemented "BLOCKED: ConditionalIf is currently unimplemented."
 evalStatement (Print expr) = evalPrintStatement expr
-evalStatement Break = notImplemented "BLOCKED: Break is currently unimplemented."
+evalStatement Break = liftIO exitSuccess -- Note: this needs to be handled specialy inside iterators.
 
 evalExpr :: Expr -> TroutState VarValue
 evalExpr (SExpr expr) = do
