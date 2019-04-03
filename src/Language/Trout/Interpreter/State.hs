@@ -6,40 +6,41 @@ import Language.Trout.Interpreter.IO
 import Language.Trout.Grammar
 import Data.Text
 
-type TroutState a = StateT (StreamBuffer, StreamContext, TroutStore) IO a
+type TroutState a = StateT (StreamBuffer, StreamContext, PrintContext, TroutStore) IO a
 
 newtype StreamContext = StreamContext (Maybe StreamExpr)
+newtype PrintContext = PrintContext Bool
 
-blank :: (StreamBuffer, StreamContext, TroutStore)
-blank = ((InBuffer [], OutBuffer []), StreamContext Nothing, TroutStore [])
+blank :: (StreamBuffer, StreamContext, PrintContext, TroutStore)
+blank = ((InBuffer [], OutBuffer []), StreamContext Nothing, PrintContext False, TroutStore [])
 
 troutPrint :: Show a => a -> TroutState ()
 troutPrint t = do
-    (buffer, context, store) <- get
+    (buffer, context, pc, store) <- get
     buffer' <- liftIO . printToBuffer buffer . pack . show $ t
-    put (buffer', context, store)
+    put (buffer', context, pc, store)
 
 -- Data Things
 
 troutDumpState :: TroutState ()
 troutDumpState = do
-    (_, _, tstate) <- get
+    (_, _, _, tstate) <- get
     troutPrint tstate
 
 troutSetVar :: String -> VarValue -> TroutState ()
 troutSetVar name value = do
-    (a, c, beforeStore) <- get
-    put (a, c, setVar beforeStore name value)
+    (a, c, p, beforeStore) <- get
+    put (a, c, p, setVar beforeStore name value)
 
 troutGetVar :: String -> VarType -> TroutState VarValue
 troutGetVar name vartype = do
-    (_, _, store) <- get
+    (_, _, _, store) <- get
     let val = getVar store name vartype
     return val
 
 troutGetVarAny :: String -> TroutState VarValue
 troutGetVarAny name = do
-    (_, _, store) <- get
+    (_, _, _, store) <- get
     let val = getVarAny store name
     return val
 
