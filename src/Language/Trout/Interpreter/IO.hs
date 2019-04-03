@@ -42,11 +42,12 @@ extractLatestInput b@(InBuffer i, o ) =
     needExtending [] = True
     needExtending [Just _] = False
     needExtending [Nothing] = True
-    needExtending (x:xs) = needExtending xs
+    needExtending (_:xs) = needExtending xs
 
     extractLast [Just txt] = ([Nothing], txt)
     extractLast (x:xs) = (x : fst r, snd r)
       where r = extractLast xs
+    extractLast [] = error "Internal error."
 
 fillBuffer :: StreamBuffer -> IO StreamBuffer
 fillBuffer b@(InBuffer i, OutBuffer o) =

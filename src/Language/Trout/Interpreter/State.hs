@@ -43,7 +43,7 @@ troutRead = do
     put (buffer', sc, pc, store)
     return f
     where
-        extract (Left a) = error "Error parsing standard input"
+        extract (Left _) = error "Error parsing standard input"
         extract (Right a) = a
 
 troutSetIndex :: Int -> IntExpr -> TroutState ()
@@ -86,12 +86,12 @@ troutGetOutputFrame = do
 
 setPrintContext :: PrintContext -> TroutState ()
 setPrintContext context = do
-    (b, sc, pc, s) <- get
+    (b, sc, _, s) <- get
     put (b, sc, context, s)
 
 setStreamContext :: StreamContext -> TroutState ()
 setStreamContext context = do
-    (b, sc, pc, s) <- get
+    (b, _, pc, s) <- get
     put (b, context, pc, s)
 
 -- Data Things

@@ -6,8 +6,6 @@ import Language.Trout.Parser(fileParser)
 import Language.Trout.Error(syntaxError, troutError)
 import Language.Trout.Interpreter(executeProgram)
 import Language.Trout.Interpreter.State
-import Language.Trout.Interpreter.Store
-import Language.Trout.Interpreter.IO
 import Text.Megaparsec(runParser)
 import System.Environment(getArgs)
 import Control.Monad(void)
