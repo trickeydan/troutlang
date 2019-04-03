@@ -4,6 +4,8 @@ import Control.Monad.State
 import Language.Trout.Interpreter.Store
 import Language.Trout.Interpreter.IO
 import Language.Trout.Grammar
+import Language.Trout.Parser(stdInputFrameExpr)
+import Text.Megaparsec(runParser)
 import Data.Text
 
 type TroutState a = StateT (StreamBuffer, StreamContext, PrintContext, TroutStore) IO a
@@ -19,6 +21,17 @@ troutPrint t = do
     (buffer, context, pc, store) <- get
     buffer' <- liftIO . printToBuffer buffer . pack . show $ t
     put (buffer', context, pc, store)
+
+troutRead :: TroutState FrameExpr
+troutRead = do
+    (buffer, sc, pc, store) <- get
+    (buffer', txt) <- liftIO $ extractLatestInput buffer
+    let f = extract $ runParser stdInputFrameExpr "stdin" txt
+    put (buffer', sc, pc, store)
+    return f
+    where
+        extract (Left a) = error "Error parsing standard input"
+        extract (Right a) = a
 
 -- Data Things
 
