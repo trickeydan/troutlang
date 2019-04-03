@@ -5,7 +5,7 @@ module Language.Trout.Application (
 import Language.Trout.Parser(fileParser)
 import Language.Trout.Error(syntaxError, troutError)
 import Language.Trout.Interpreter(executeProgram)
-import Language.Trout.Interpreter.Store
+import Language.Trout.Interpreter.State
 import Text.Megaparsec(runParser)
 import System.Environment(getArgs)
 import Control.Monad(void)
@@ -22,7 +22,7 @@ runApp = do
       source <- readFile file
       let parsed = runParser fileParser file source
       program <- extractProgram parsed
-      void $ runStateT (executeProgram program) ((), TroutStore [])
+      void $ runStateT (executeProgram program) blank
       where
         extractProgram (Left bundle) = syntaxError bundle >> return []
         extractProgram (Right program) = return program

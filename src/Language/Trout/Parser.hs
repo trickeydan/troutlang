@@ -4,6 +4,7 @@ module Language.Trout.Parser (
   identifier,
   intExpr,
   frameExpr,
+  stdInputFrameExpr,
   streamExpr,
   boolExpr,
   expr,
@@ -82,6 +83,16 @@ frameExpr = makeExprParser exprTerm opTable
         [ inf "," AppendFrame]
       ]
 
+stdInputFrameExpr :: Parser FrameExpr
+stdInputFrameExpr = Frame <$> intList
+  where
+    intList :: Parser [IntExpr]
+    intList = (:) <$>
+      fmap IntNum ( L.signed spaceConsumer $ lexeme L.decimal) <*>
+      choice
+        [ try intList
+        , return [] ]
+
 streamExpr :: Parser StreamExpr
 streamExpr = choice
   [ try iteratorStream
@@ -91,7 +102,8 @@ streamExpr = choice
     flatStream = makeExprParser exprTerm opTable
     exprTerm :: Parser StreamExpr
     exprTerm = choice
-      [ (\f -> Stream [f]) <$> try frameExpr
+      [ try (symbol "IN") >> return InputStream
+      , (\f -> Stream [f]) <$> try frameExpr
       , StreamIdentifier <$> identifier ]
     opTable = [[inf "&" AppendStream]]
     iteratorStream :: Parser StreamExpr

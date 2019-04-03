@@ -31,6 +31,9 @@ evalStreamExpr (StreamIdentifier ident) =  do
 evalStreamExpr (Iterator _ _) = do
     notImplemented "BLOCKED: Iterators are not implemented"
     return []
+evalStreamExpr InputStream = do
+    notImplemented "TODO: input stream"
+    return []
 
 evalStreamIdentifier :: Identifier -> TroutState StreamExpr
 evalStreamIdentifier (InputIndex _) = do

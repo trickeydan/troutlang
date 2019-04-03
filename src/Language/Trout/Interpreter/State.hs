@@ -1,34 +1,118 @@
 module Language.Trout.Interpreter.State where
 
 import Control.Monad.State
+import Control.Monad(when)
 import Language.Trout.Interpreter.Store
+import Language.Trout.Interpreter.IO
+import Language.Trout.Grammar
+import Language.Trout.Parser(stdInputFrameExpr)
+import Text.Megaparsec(runParser)
+import Data.Text hiding (empty, map, takeWhile)
+import Data.HashMap.Strict hiding (map)
+import Data.Maybe(isNothing)
+import Prelude hiding (lookup)
 
-type TroutState a = StateT ((), TroutStore) IO a
+-- In future, refactor to use record syntax.
+type TroutState a = StateT (StreamBuffer, StreamContext, PrintContext, TroutStore) IO a
+
+newtype StreamContext = StreamContext (Maybe StreamExpr, HashMap Int IntExpr)
+newtype PrintContext = PrintContext Bool
+
+blank :: (StreamBuffer, StreamContext, PrintContext, TroutStore)
+blank = (
+        (InBuffer [], OutBuffer []),
+        StreamContext (Nothing, empty),
+        PrintContext False,
+        TroutStore []
+    )
 
 troutPrint :: Show a => a -> TroutState ()
-troutPrint = liftIO . print
+troutPrint t = do
+    (buffer, sc, PrintContext pc, store) <- get
+    when pc $ do
+        buffer' <- liftIO . printToBuffer buffer . pack . show $ t
+        put (buffer', sc, PrintContext pc, store)
+
+troutRead :: TroutState FrameExpr
+troutRead = do
+    (buffer, sc, pc, store) <- get
+    (buffer', txt) <- liftIO $ extractLatestInput buffer
+    let f = extract $ runParser stdInputFrameExpr "stdin" txt
+    put (buffer', sc, pc, store)
+    return f
+    where
+        extract (Left _) = error "Error parsing standard input"
+        extract (Right a) = a
+
+troutSetIndex :: Int -> IntExpr -> TroutState ()
+troutSetIndex i e = do
+    (b, StreamContext (str, hm), pc, s) <- get
+    if
+        isNothing str
+    then
+        error "Cannot set stream index outside iterator."
+    else
+        put (b, StreamContext (str, insert i e hm), pc, s)
+
+troutGetIndex :: Int -> TroutState IntExpr
+troutGetIndex i = do
+    (_, StreamContext (str, hm), _, _) <- get
+    let v = lookup i hm
+    if
+        isNothing str
+    then
+        error "Cannot read stream index outside iterator."
+    else
+        output v
+    where
+        output Nothing = error "Empty index accessed."
+        output (Just x) = return x
+
+troutGetOutputFrame :: TroutState FrameExpr
+troutGetOutputFrame = do
+    (_, StreamContext (str, hm), _, _) <- get
+    if
+        isNothing str
+    then
+        error "Cannot output iterator frame outside iterator."
+    else
+        return $ Frame $ chopMaybes $ map (`lookup` hm) [0..]
+    where
+        chopMaybes [] = []
+        chopMaybes (Just x : xs) = x : chopMaybes xs
+        chopMaybes (Nothing : _) = []
+
+setPrintContext :: PrintContext -> TroutState ()
+setPrintContext context = do
+    (b, sc, _, s) <- get
+    put (b, sc, context, s)
+
+setStreamContext :: StreamContext -> TroutState ()
+setStreamContext context = do
+    (b, _, pc, s) <- get
+    put (b, context, pc, s)
 
 -- Data Things
 
 troutDumpState :: TroutState ()
 troutDumpState = do
-    (_, tstate) <- get
+    (_, _, _, tstate) <- get
     troutPrint tstate
 
 troutSetVar :: String -> VarValue -> TroutState ()
 troutSetVar name value = do
-    (a, beforeStore) <- get
-    put (a, setVar beforeStore name value)
+    (a, c, p, beforeStore) <- get
+    put (a, c, p, setVar beforeStore name value)
 
 troutGetVar :: String -> VarType -> TroutState VarValue
 troutGetVar name vartype = do
-    (_, store) <- get
+    (_, _, _, store) <- get
     let val = getVar store name vartype
     return val
 
 troutGetVarAny :: String -> TroutState VarValue
 troutGetVarAny name = do
-    (_, store) <- get
+    (_, _, _, store) <- get
     let val = getVarAny store name
     return val
 
