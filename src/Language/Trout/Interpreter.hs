@@ -13,6 +13,7 @@ import Language.Trout.Grammar
 import Language.Trout.Error
 import System.Exit(exitSuccess)
 import Control.Monad.State
+import Control.Monad(when)
 
 import Control.Monad(void)
 
@@ -30,7 +31,7 @@ evalProgram (x:xs) = do
 evalStatement :: Statement -> TroutState ()
 evalStatement (Assignment ident expr) = evalAssignment ident expr
 evalStatement (NullAssignment expr) = evalNullAssignment expr
-evalStatement (ConditionalIf _ _ ) = notImplemented "BLOCKED: ConditionalIf is currently unimplemented."
+evalStatement (ConditionalIf bexpr stmt ) = evalConditional bexpr stmt -- Note: also a special case in iterators.
 evalStatement (Print expr) = evalPrintStatement expr
 evalStatement Break = liftIO exitSuccess -- Note: this needs to be handled specialy inside iterators.
 
@@ -105,3 +106,41 @@ evalPrintStatement expr = do
     setPrintContext $ PrintContext True
     _ <- evalExpr expr
     setPrintContext $ PrintContext False
+
+-- ConditionalIf Statement
+
+evalConditional :: BoolExpr -> Statement -> TroutState ()
+evalConditional bexpr stmt = do
+    conditionMet <- evalBoolExpr bexpr
+    when conditionMet $ do
+        evalStatement stmt
+
+evalBoolExpr :: BoolExpr -> TroutState Bool
+evalBoolExpr (Boolean b) = return b
+evalBoolExpr (Equals a b) = do
+    a' <- evalExpr a
+    b' <- evalExpr b
+    return $ a' == b'
+evalBoolExpr (NotEquals a b) = do
+    a' <- evalExpr a
+    b' <- evalExpr b
+    return $ a' /= b'
+evalBoolExpr (LessThan a b) = do
+    (IntVal a') <- evalExpr a
+    (IntVal b') <- evalExpr b
+    return $ a' < b'
+evalBoolExpr (GreaterThan a b) = do
+    (IntVal a') <- evalExpr a
+    (IntVal b') <- evalExpr b
+    return $ a' > b'
+evalBoolExpr (Or a b) = do
+    a' <- evalBoolExpr a
+    b' <- evalBoolExpr b
+    return $ a' || b'
+evalBoolExpr (And a b) = do
+    a' <- evalBoolExpr a
+    b' <- evalBoolExpr b
+    return $ a' && b'
+evalBoolExpr (Not a) = do
+    a' <- evalBoolExpr a
+    return $ not a'
