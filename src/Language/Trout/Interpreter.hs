@@ -159,6 +159,10 @@ evalStreamExpr InputStream = do
     troutPrint (FrameVal f)
     remainingIn <- evalStreamExpr InputStream
     return (f:remainingIn)
+evalStreamExpr InfiniteStream = do
+    troutPrint (FrameVal [1])
+    remaining <- evalStreamExpr InfiniteStream
+    return ([1]:remaining)
 evalStreamExpr (AppendStream s1 s2) = do
     s1' <- evalStreamExpr s1
     s2' <- evalStreamExpr s2
@@ -172,27 +176,8 @@ evalStreamExpr (Iterator s ss) = do
     return s'
 
 evalIterator :: StreamExpr -> [Statement] -> TroutState [[Int]]
-evalIterator InputStream ss = do
-    sc <- getStreamContext
-    pc <- getPrintContext
-    setPrintContext (PrintContext False)
-    inFrame <- troutRead
-    setStreamContext $ StreamContext $
-        (IterationFrame inFrame, empty)
-    outFrame <- iterationStep ss
-    setPrintContext pc
-    when (outFrame /= []) $ troutPrint (FrameVal outFrame)
-    term <- iterationTerminated
-    if term
-        then do
-            setStreamContext sc
-            setPrintContext (PrintContext False)
-            return [outFrame]
-        else do
-            remaining <- evalIterator InputStream ss
-            setStreamContext sc
-            setPrintContext (PrintContext False)
-            return $ outFrame : remaining
+evalIterator InputStream ss = evalUnbounded troutRead ss
+evalIterator InfiniteStream ss = evalUnbounded (return [1]) ss
 evalIterator e ss = do
     sc <- getStreamContext
     pc <- getPrintContext
@@ -215,6 +200,29 @@ evalIterator e ss = do
                 else do
                     remainingSteps <- iterateOver fs stmts
                     return $ step : remainingSteps
+
+evalUnbounded :: TroutState [Int] -> [Statement] -> TroutState [[Int]]
+evalUnbounded source ss = do
+    sc <- getStreamContext
+    pc <- getPrintContext
+    setPrintContext (PrintContext False)
+    inFrame <- source
+    setStreamContext $ StreamContext $
+        (IterationFrame inFrame, empty)
+    outFrame <- iterationStep ss
+    setPrintContext pc
+    when (outFrame /= []) $ troutPrint (FrameVal outFrame)
+    term <- iterationTerminated
+    if term
+        then do
+            setStreamContext sc
+            setPrintContext (PrintContext False)
+            return [outFrame]
+        else do
+            remaining <- evalIterator InputStream ss
+            setStreamContext sc
+            setPrintContext (PrintContext False)
+            return $ outFrame : remaining
 
 iterationTerminated :: TroutState Bool
 iterationTerminated = do

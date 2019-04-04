@@ -3,6 +3,7 @@ module Language.Trout.Grammar where
 data StreamExpr = 
   Stream [FrameExpr]
   | InputStream
+  | InfiniteStream
   | StreamIdentifier Identifier
   | AppendStream StreamExpr StreamExpr
   | Iterator StreamExpr [Statement]

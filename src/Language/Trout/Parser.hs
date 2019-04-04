@@ -102,7 +102,8 @@ streamExpr = choice
     flatStream = makeExprParser exprTerm opTable
     exprTerm :: Parser StreamExpr
     exprTerm = choice
-      [ try (symbol "IN") >> return InputStream
+      [ try (symbol "#") >> return InfiniteStream
+      , try (symbol "IN") >> return InputStream
       , (\f -> Stream [f]) <$> try frameExpr
       , StreamIdentifier <$> identifier ]
     opTable = [[inf "&" AppendStream]]
