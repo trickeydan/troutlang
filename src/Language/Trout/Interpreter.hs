@@ -174,7 +174,7 @@ evalStreamExpr (Stream (f:fs)) = do
         return $ f' : restOfTheOwl
     else do
         let (StreamVal s) = wrapStream ef
-        evalStreamExpr $ (Stream . map Frame . map (map IntNum)) s
+        evalStreamExpr $ (Stream . map (Frame . map IntNum)) s
 
 evalStreamExpr InputStream = do
     f <- troutRead
@@ -226,8 +226,8 @@ evalIterator e ss = do
 
 evalUnbounded :: TroutState [Int] -> [Statement] -> TroutState [[Int]]
 evalUnbounded source ss = do
-    sc <- getStreamContext
     pc <- getPrintContext
+    sc <- getStreamContext
     setPrintContext (PrintContext False)
     inFrame <- source
     setStreamContext $ StreamContext
