@@ -13,6 +13,7 @@ import Language.Trout.Error
 import System.Exit(exitSuccess)
 import Control.Monad.State
 import Control.Monad(when, void)
+import Data.HashMap.Strict(empty)
 
 executeProgram :: Program -> TroutState ()
 executeProgram program = do
@@ -165,3 +166,70 @@ evalStreamExpr (AppendStream s1 s2) = do
 evalStreamExpr (StreamIdentifier i) = do
     (StreamVal r) <- evalIdentifier i
     return r
+evalStreamExpr (Iterator s ss) = do
+    s' <- evalIterator s ss
+    troutPrint (StreamVal s')
+    return s'
+
+evalIterator :: StreamExpr -> [Statement] -> TroutState [[Int]]
+evalIterator InputStream ss = do
+    sc <- getStreamContext
+    inFrame <- troutRead
+    setStreamContext $ StreamContext $
+        (IterationFrame inFrame, empty)
+    outFrame <- iterationStep ss
+    term <- iterationTerminated
+    if term
+        then do
+            setStreamContext sc
+            return [outFrame]
+        else do
+            remaining <- evalIterator InputStream ss
+            setStreamContext sc
+            return $ outFrame : remaining
+evalIterator e ss = do
+    sc <- getStreamContext
+    pc <- getPrintContext
+    setPrintContext (PrintContext False)
+    inStream <- evalStreamExpr e
+    setPrintContext pc
+    out <- iterateOver inStream ss
+    setStreamContext sc
+    return out
+    where
+        iterateOver :: [[Int]] -> [Statement] -> TroutState [[Int]]
+        iterateOver [] _ = return []
+        iterateOver (f:fs) stmts = do
+            setStreamContext $ StreamContext $
+                (IterationFrame f, empty)
+            step <- iterationStep ss
+            term <- iterationTerminated
+            if term
+                then return [step]
+                else do
+                    remainingSteps <- iterateOver fs stmts
+                    return $ step : remainingSteps
+
+
+
+
+iterationTerminated :: TroutState Bool
+iterationTerminated = do
+    (StreamContext (i, _)) <- getStreamContext
+    if i == BlankStream
+        then return True
+        else return False
+
+iterationStep :: [Statement] -> TroutState [Int]
+iterationStep [] = troutGetOutputFrame
+iterationStep (Break : _) = do
+    setStreamContext $ StreamContext (BlankStream, empty)
+    troutGetOutputFrame
+iterationStep (ConditionalIf bexpr Break : ss) = do
+    bresult <- evalBoolExpr bexpr
+    if bresult
+        then iterationStep (Break : ss)
+        else iterationStep ss
+iterationStep (s:ss) = do
+    evalStatement s
+    iterationStep ss
