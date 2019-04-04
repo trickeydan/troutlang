@@ -165,7 +165,9 @@ expr = choice
       , IExpr <$> try intExpr ]
     isId :: Expr -> Bool
     isId (SExpr (StreamIdentifier _)) = True
+    isId (SExpr (Stream [a])) = isId (FExpr a)
     isId (FExpr (FrameIdentifier _)) = True
+    isId (FExpr (Frame [a])) = isId (IExpr a)
     isId (IExpr (IntIdentifier _)) = True
     isId _ = False
     simplifyExpr :: Expr -> Expr
