@@ -14,8 +14,8 @@ import System.IO(isEOF)
 import System.Exit(exitSuccess)
 
 type StreamBuffer = (InBuffer, OutBuffer)
-newtype InBuffer = InBuffer [Maybe Text]
-newtype OutBuffer = OutBuffer [Text]
+newtype InBuffer = InBuffer [Maybe Text] deriving(Eq, Show)
+newtype OutBuffer = OutBuffer [Text] deriving(Eq, Show)
 
 printToBuffer :: StreamBuffer -> Text -> IO StreamBuffer
 printToBuffer (InBuffer i, OutBuffer o) t = do
@@ -25,7 +25,7 @@ printToBuffer (InBuffer i, OutBuffer o) t = do
 
 extendBuffer :: StreamBuffer -> IO StreamBuffer
 extendBuffer (InBuffer i, OutBuffer o) = fetchLine >>=
-  (\l -> return (InBuffer (Just l : i), OutBuffer o))
+  (\l -> return (InBuffer ( i ++ [Just l]), OutBuffer o))
 
 extractLatestInput :: StreamBuffer -> IO (StreamBuffer, Text)
 extractLatestInput b@(InBuffer [], _) =
@@ -44,8 +44,8 @@ extractLatestInput b@(InBuffer i, o ) =
     needExtending [Nothing] = True
     needExtending (_:xs) = needExtending xs
 
-    extractLast [Just txt] = ([Nothing], txt)
-    extractLast (x:xs) = (x : fst r, snd r)
+    extractLast (Just txt : xs) = (Nothing : xs, txt)
+    extractLast (Nothing : xs) = (Nothing : fst r, snd r)
       where r = extractLast xs
     extractLast [] = error "Internal error."
 
