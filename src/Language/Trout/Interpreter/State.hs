@@ -36,7 +36,7 @@ blank = (
 
 breakStream :: TroutState ()
 breakStream = do
-    StreamContext (i, m) <- getStreamContext
+    StreamContext (_, m) <- getStreamContext
     setStreamContext $ StreamContext (BrokenStream, m)
 
 troutPrint :: VarValue -> TroutState ()
