@@ -2,20 +2,26 @@
     Do Fibonacci things.
 */
 
-el = 0
+buf = 0
+
 IN {
-    index = 0
-    fib0 = 1
-    fib1 = 1
-    n = 0
-    _ = IN {
-        if (index > el) break
-        n = n + fib0 * [0]
-        tmp = fib1 + fib0
-        fib0 = fib1
-        fib1 = tmp
-        index = index + 1
-    }
-    <0> = n
-    el = el + 1
+
+  buf = buf & [0]
+
+  fiba = 0
+  fibb = 1
+
+  acc = 0
+
+  _ = buf {
+
+    acc = acc + ([0] * fiba)
+    nextFib = fiba + fibb
+    fiba = fibb
+    fibb = nextFib
+
+  }
+
+  acc
+
 }
