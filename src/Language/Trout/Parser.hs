@@ -19,7 +19,6 @@ import qualified Text.Megaparsec.Char.Lexer as L
 import Control.Monad.Combinators.Expr
 import Data.Void
 import Data.Text
-
 import Language.Trout.Grammar
 
 type Parser = Parsec Void Text

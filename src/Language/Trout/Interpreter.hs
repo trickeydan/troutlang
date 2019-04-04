@@ -1,6 +1,9 @@
 module Language.Trout.Interpreter 
 (
-    executeProgram
+    executeProgram,
+    wrapInt,
+    wrapFrame,
+    wrapStream
 )
 where
 
@@ -14,6 +17,7 @@ import System.Exit(exitSuccess)
 import Control.Monad.State
 import Control.Monad(when, void)
 import Data.HashMap.Strict(empty)
+import Data.Maybe
 
 executeProgram :: Program -> TroutState ()
 executeProgram program = do
@@ -34,11 +38,17 @@ evalStatement (Print expr) = evalPrintStatement expr
 evalStatement Break = liftIO exitSuccess -- Note: this needs to be handled specialy inside iterators.
 
 evalExpr :: Expr -> TroutState VarValue
-evalExpr (SExpr expr) = do
+evalExpr e = let v = castVExpr e in doEval v e
+    where
+        doEval (Just a) _ = evalConcreteExpr a
+        doEval Nothing a = evalConcreteExpr a
+
+evalConcreteExpr :: Expr -> TroutState VarValue
+evalConcreteExpr (SExpr expr) = do
     intss <- evalStreamExpr expr
     let out = StreamVal intss
     return out
-evalExpr (FExpr expr) = do
+evalConcreteExpr (FExpr expr) = do
     p <- getPrintContext
     setPrintContext (PrintContext False)
     intExprs <- evalFrameExpr expr
@@ -46,7 +56,7 @@ evalExpr (FExpr expr) = do
     vv <- getFrameVarValue intExprs
     troutPrint vv
     return vv
-evalExpr (IExpr expr) = do
+evalConcreteExpr (IExpr expr) = do
     p <- getPrintContext
     setPrintContext (PrintContext False)
     eval <- evalIntExpr expr
@@ -54,7 +64,7 @@ evalExpr (IExpr expr) = do
     let out = IntVal eval
     troutPrint out
     return out
-evalExpr (VExpr ident) = do
+evalConcreteExpr (VExpr ident) = do
     p <- getPrintContext
     setPrintContext (PrintContext False)
     out <- evalIdentifier ident
@@ -154,11 +164,18 @@ evalStreamExpr (Stream []) = return []
 evalStreamExpr (Stream (f:fs)) = do
     p <- getPrintContext
     setPrintContext (PrintContext False)
-    (FrameVal f') <- evalExpr (FExpr f)
-    setPrintContext p
-    troutPrint (FrameVal f')
-    restOfTheOwl <- evalStreamExpr (Stream fs)
-    return $ f' : restOfTheOwl
+    ef <- evalExpr (FExpr f)
+    if isNothing $ castVExpr (FExpr f)
+    then do
+        let (FrameVal f') = wrapFrame ef
+        setPrintContext p
+        troutPrint (FrameVal f')
+        restOfTheOwl <- evalStreamExpr (Stream fs)
+        return $ f' : restOfTheOwl
+    else do
+        let (StreamVal s) = wrapStream ef
+        evalStreamExpr $ (Stream . map Frame . map (map IntNum)) s
+
 evalStreamExpr InputStream = do
     f <- troutRead
     troutPrint (FrameVal f)
@@ -173,7 +190,8 @@ evalStreamExpr (AppendStream s1 s2) = do
     s2' <- evalStreamExpr s2
     return (s1' ++ s2')
 evalStreamExpr (StreamIdentifier i) = do
-    (StreamVal r) <- evalIdentifier i
+    ei <- evalIdentifier i
+    let (StreamVal r) = wrapStream ei
     return r
 evalStreamExpr (Iterator s ss) = do
     s' <- evalIterator s ss
@@ -252,3 +270,30 @@ iterationStep (ConditionalIf bexpr Break : ss) = do
 iterationStep (s:ss) = do
     evalStatement s
     iterationStep ss
+
+-- Utility functions
+
+wrapStream :: VarValue -> VarValue
+wrapStream (IntVal v) = StreamVal [[v]]
+wrapStream (FrameVal v) = StreamVal [v]
+wrapStream v = v
+
+wrapFrame :: VarValue -> VarValue
+wrapFrame (IntVal v) = FrameVal [v]
+wrapFrame (FrameVal v) = FrameVal v
+wrapFrame (StreamVal [v]) = FrameVal v
+wrapFrame _ = error "Cannot cast a non-trivial Stream as a Frame."
+
+wrapInt :: VarValue -> VarValue
+wrapInt (IntVal v) = IntVal v
+wrapInt (FrameVal [v]) = IntVal v
+wrapInt (StreamVal [[v]]) = IntVal v
+wrapInt _ = error "Cannot cast a non-trivial Stream or Frame as an Int."
+
+castVExpr :: Expr -> Maybe Expr
+castVExpr (SExpr (StreamIdentifier i)) = Just $ VExpr i
+castVExpr (SExpr (Stream [f])) = castVExpr $ FExpr f
+castVExpr (FExpr (FrameIdentifier i)) = Just $ VExpr i
+castVExpr (FExpr (Frame [i])) = castVExpr $ IExpr i
+castVExpr (IExpr (IntIdentifier i)) = Just $ VExpr i
+castVExpr _ = Nothing
