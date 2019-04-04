@@ -37,7 +37,6 @@ evalExpr :: Expr -> TroutState VarValue
 evalExpr (SExpr expr) = do
     intss <- evalStreamExpr expr
     let out = StreamVal intss
-    troutPrint out
     return out
 evalExpr (FExpr expr) = do
     p <- getPrintContext
