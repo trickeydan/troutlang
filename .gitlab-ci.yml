@@ -21,6 +21,7 @@ build_stack:
 build_submission:
   stage: build
   cache:
+    key: pawel
     paths:
       - cwk/downloads
   script:
