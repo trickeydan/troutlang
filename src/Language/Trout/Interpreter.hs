@@ -181,7 +181,7 @@ evalIterator InputStream ss = do
         (IterationFrame inFrame, empty)
     outFrame <- iterationStep ss
     setPrintContext pc
-    troutPrint (FrameVal outFrame)
+    when (outFrame /= []) $ troutPrint (FrameVal outFrame)
     term <- iterationTerminated
     if term
         then do
