@@ -81,12 +81,18 @@ evalIdentifier (ReturnIndex riexpr ) = do
 
 evalAssignment :: Identifier -> Expr -> TroutState ()
 evalAssignment (Variable name) expr = do
+    pc <- getPrintContext
+    setPrintContext (PrintContext False)
     val <- evalExpr expr
     troutSetVar name val
+    setPrintContext pc
 evalAssignment (ReturnIndex riexpr) e = do
+    pc <- getPrintContext
+    setPrintContext (PrintContext False)
     i <- evalIntExpr riexpr
     v <- evalExpr e
     writeIndex i v
+    setPrintContext pc
     where
         writeIndex i (IntVal r) = troutSetIndex i r
         writeIndex _ _ = typeError "Only integers may be stored in return indices."
