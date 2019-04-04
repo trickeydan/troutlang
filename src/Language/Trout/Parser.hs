@@ -19,7 +19,6 @@ import qualified Text.Megaparsec.Char.Lexer as L
 import Control.Monad.Combinators.Expr
 import Data.Void
 import Data.Text
-
 import Language.Trout.Grammar
 
 type Parser = Parsec Void Text
@@ -102,7 +101,8 @@ streamExpr = choice
     flatStream = makeExprParser exprTerm opTable
     exprTerm :: Parser StreamExpr
     exprTerm = choice
-      [ try (symbol "IN") >> return InputStream
+      [ try (symbol "#") >> return InfiniteStream
+      , try (symbol "IN") >> return InputStream
       , (\f -> Stream [f]) <$> try frameExpr
       , StreamIdentifier <$> identifier ]
     opTable = [[inf "&" AppendStream]]
@@ -137,11 +137,11 @@ boolExpr = makeExprParser exprTerm opTable
           NotEquals left <$> expr
         gt = do
           left <- expr
-          _ <- symbol "<"
+          _ <- symbol ">"
           GreaterThan left <$> expr
         lt = do
           left <- expr
-          _ <- symbol ">"
+          _ <- symbol "<"
           LessThan left <$> expr
     loneBool :: Parser BoolExpr
     loneBool = choice
@@ -164,7 +164,9 @@ expr = choice
       , IExpr <$> try intExpr ]
     isId :: Expr -> Bool
     isId (SExpr (StreamIdentifier _)) = True
+    isId (SExpr (Stream [a])) = isId (FExpr a)
     isId (FExpr (FrameIdentifier _)) = True
+    isId (FExpr (Frame [a])) = isId (IExpr a)
     isId (IExpr (IntIdentifier _)) = True
     isId _ = False
     simplifyExpr :: Expr -> Expr
