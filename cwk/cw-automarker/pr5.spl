@@ -6,9 +6,9 @@ buf = 0
 
 IN {
 
-  buf = buf & [0]
+  buf = [0] & buf
 
-  fiba = 0
+  fiba = 1
   fibb = 1
 
   acc = 0
