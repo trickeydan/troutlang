@@ -210,9 +210,6 @@ evalIterator e ss = do
                     remainingSteps <- iterateOver fs stmts
                     return $ step : remainingSteps
 
-
-
-
 iterationTerminated :: TroutState Bool
 iterationTerminated = do
     (StreamContext (i, _)) <- getStreamContext
