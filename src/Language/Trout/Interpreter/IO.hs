@@ -25,7 +25,7 @@ printToBuffer (InBuffer i, OutBuffer o) t = do
 
 extendBuffer :: StreamBuffer -> IO StreamBuffer
 extendBuffer (InBuffer i, OutBuffer o) = fetchLine >>=
-  (\l -> return (InBuffer (Just l : i), OutBuffer o))
+  (\l -> return (InBuffer ( i ++ [Just l]), OutBuffer o))
 
 extractLatestInput :: StreamBuffer -> IO (StreamBuffer, Text)
 extractLatestInput b@(InBuffer [], _) =
