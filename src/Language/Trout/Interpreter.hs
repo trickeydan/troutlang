@@ -196,7 +196,7 @@ evalIterator e ss = do
         iterateOver :: [[Int]] -> [Statement] -> TroutState [[Int]]
         iterateOver [] _ = return []
         iterateOver (f:fs) stmts = do
-            setStreamContext $ StreamContext $
+            setStreamContext $ StreamContext
                 (IterationFrame f, empty)
             step <- iterationStep ss
             term <- iterationTerminated
@@ -212,7 +212,7 @@ evalUnbounded source ss = do
     pc <- getPrintContext
     setPrintContext (PrintContext False)
     inFrame <- source
-    setStreamContext $ StreamContext $
+    setStreamContext $ StreamContext
         (IterationFrame inFrame, empty)
     outFrame <- iterationStep ss
     setPrintContext pc
