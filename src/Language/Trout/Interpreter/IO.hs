@@ -14,8 +14,8 @@ import System.IO(isEOF)
 import System.Exit(exitSuccess)
 
 type StreamBuffer = (InBuffer, OutBuffer)
-newtype InBuffer = InBuffer [Maybe Text]
-newtype OutBuffer = OutBuffer [Text]
+newtype InBuffer = InBuffer [Maybe Text] deriving(Eq, Show)
+newtype OutBuffer = OutBuffer [Text] deriving(Eq, Show)
 
 printToBuffer :: StreamBuffer -> Text -> IO StreamBuffer
 printToBuffer (InBuffer i, OutBuffer o) t = do
