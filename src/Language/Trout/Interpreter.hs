@@ -174,27 +174,33 @@ evalStreamExpr (Iterator s ss) = do
 evalIterator :: StreamExpr -> [Statement] -> TroutState [[Int]]
 evalIterator InputStream ss = do
     sc <- getStreamContext
+    pc <- getPrintContext
+    setPrintContext (PrintContext False)
     inFrame <- troutRead
     setStreamContext $ StreamContext $
         (IterationFrame inFrame, empty)
     outFrame <- iterationStep ss
+    setPrintContext pc
+    troutPrint (FrameVal outFrame)
     term <- iterationTerminated
     if term
         then do
             setStreamContext sc
+            setPrintContext (PrintContext False)
             return [outFrame]
         else do
             remaining <- evalIterator InputStream ss
             setStreamContext sc
+            setPrintContext (PrintContext False)
             return $ outFrame : remaining
 evalIterator e ss = do
     sc <- getStreamContext
     pc <- getPrintContext
     setPrintContext (PrintContext False)
     inStream <- evalStreamExpr e
-    setPrintContext pc
     out <- iterateOver inStream ss
     setStreamContext sc
+    setPrintContext pc
     return out
     where
         iterateOver :: [[Int]] -> [Statement] -> TroutState [[Int]]
@@ -223,7 +229,10 @@ iterationStep (Break : _) = do
     setStreamContext $ StreamContext (BlankStream, empty)
     troutGetOutputFrame
 iterationStep (ConditionalIf bexpr Break : ss) = do
+    pc <- getPrintContext
+    setPrintContext (PrintContext False)
     bresult <- evalBoolExpr bexpr
+    setPrintContext pc
     if bresult
         then iterationStep (Break : ss)
         else iterationStep ss
