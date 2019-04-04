@@ -17,6 +17,7 @@ type TroutState a = StateT (StreamBuffer, StreamContext, PrintContext, TroutStor
 newtype StreamContext = StreamContext (IterableStream, HashMap Int Int)
 data IterableStream =
     BlankStream
+    | BrokenStream
     | IterationFrame [Int]
     deriving(Eq, Show)
 newtype PrintContext = PrintContext Bool
@@ -32,6 +33,11 @@ blank = (
         PrintContext False,
         TroutStore []
     )
+
+breakStream :: TroutState ()
+breakStream = do
+    StreamContext (i, m) <- getStreamContext
+    setStreamContext $ StreamContext (BrokenStream, m)
 
 troutPrint :: VarValue -> TroutState ()
 troutPrint (StreamVal []) = return ()

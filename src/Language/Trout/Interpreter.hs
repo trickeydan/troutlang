@@ -232,14 +232,14 @@ evalUnbounded source ss = do
 iterationTerminated :: TroutState Bool
 iterationTerminated = do
     (StreamContext (i, _)) <- getStreamContext
-    if i == BlankStream
+    if i == BrokenStream
         then return True
         else return False
 
 iterationStep :: [Statement] -> TroutState [Int]
 iterationStep [] = troutGetOutputFrame
 iterationStep (Break : _) = do
-    setStreamContext $ StreamContext (BlankStream, empty)
+    breakStream
     troutGetOutputFrame
 iterationStep (ConditionalIf bexpr Break : ss) = do
     pc <- getPrintContext
