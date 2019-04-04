@@ -55,18 +55,4 @@ getVarAny (TroutStore store) name = getValList store confirmType name StreamType
         confirmType _ = id
 
 setVar :: TroutStore -> String -> VarValue -> TroutStore
-setVar (TroutStore store) name value = TroutStore $ setValList store name value False []
-    where
-        setValList :: [StoreEntry] -> String -> VarValue -> Bool -> [StoreEntry] -> [StoreEntry]
-        setValList [] n v found new
-            | found = new
-            | otherwise = newVarStorage
-            where
-                -- Note: This does not do a type check before setting the variable.
-                newVarStorage = (n, v):new
-        setValList (x:xs) nam val found new
-            | fst x == nam = setValList xs nam val True newVarStorage
-            | otherwise = setValList xs nam val found new
-            where
-                -- Note: This does not do a type check before setting the variable.
-                newVarStorage = (nam, val):new
+setVar (TroutStore vs) v vv = TroutStore ((v, vv):vs)
