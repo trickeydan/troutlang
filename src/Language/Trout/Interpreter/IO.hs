@@ -44,8 +44,8 @@ extractLatestInput b@(InBuffer i, o ) =
     needExtending [Nothing] = True
     needExtending (_:xs) = needExtending xs
 
-    extractLast [Just txt] = ([Nothing], txt)
-    extractLast (x:xs) = (x : fst r, snd r)
+    extractLast (Just txt : xs) = (Nothing : xs, txt)
+    extractLast (Nothing : xs) = (Nothing : fst r, snd r)
       where r = extractLast xs
     extractLast [] = error "Internal error."
 
