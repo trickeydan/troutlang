@@ -138,11 +138,11 @@ boolExpr = makeExprParser exprTerm opTable
           NotEquals left <$> expr
         gt = do
           left <- expr
-          _ <- symbol "<"
+          _ <- symbol ">"
           GreaterThan left <$> expr
         lt = do
           left <- expr
-          _ <- symbol ">"
+          _ <- symbol "<"
           LessThan left <$> expr
     loneBool :: Parser BoolExpr
     loneBool = choice
