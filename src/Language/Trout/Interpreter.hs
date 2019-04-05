@@ -10,7 +10,6 @@ where
 import Language.Trout.Interpreter.State
 import Language.Trout.Interpreter.Store
 import Language.Trout.Interpreter.Type.Int
-import Language.Trout.Interpreter.Type.Frame
 import Language.Trout.Grammar
 import Language.Trout.Error
 import System.Exit(exitSuccess)
@@ -156,6 +155,43 @@ evalBoolExpr (And a b) = do
 evalBoolExpr (Not a) = do
     a' <- evalBoolExpr a
     return $ not a'
+
+-- Frame Handling
+
+evalFrameExpr :: FrameExpr -> TroutState [IntExpr]
+evalFrameExpr (Frame xs) = return xs
+evalFrameExpr (FrameIdentifier ident) = do
+    val <- evalFrameIdentifier ident
+    return $ map IntNum val
+evalFrameExpr (AppendFrame expr1 expr2) = do
+    val1 <- evalFrameExpr expr1
+    val2 <- evalFrameExpr expr2
+    return $ val1 ++ val2
+
+evalFrameIdentifier :: Identifier -> TroutState [Int]
+evalFrameIdentifier (Variable name) = do
+    val <- troutGetVar name FrameType
+    return $ troutGetFrameFromVarValue val
+evalFrameIdentifier _ = do
+    typeError "Only Integers can be stored in Indices"
+    return []
+
+getFrameVarValue :: [IntExpr] -> TroutState VarValue
+getFrameVarValue exprs = do
+    if isNothing $ castVExpr $ FExpr $ Frame exprs
+        then do
+            ints <- reduceIntExprList exprs
+            return $ FrameVal ints
+        else do
+            let (Just (VExpr i)) = castVExpr $ FExpr $ Frame exprs
+            wrapFrame <$> evalIdentifier i
+
+reduceIntExprList :: [IntExpr] -> TroutState [Int]
+reduceIntExprList [] = return []
+reduceIntExprList (x:xs) = do
+    val <- evalIntExpr x
+    vals <- reduceIntExprList xs
+    return (val:vals)
 
 -- Stream Handling
 
