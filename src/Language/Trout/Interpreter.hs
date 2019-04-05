@@ -10,7 +10,6 @@ where
 import Language.Trout.Interpreter.State
 import Language.Trout.Interpreter.Store
 import Language.Trout.Interpreter.Type.Int
-import Language.Trout.Interpreter.Type.Frame
 import Language.Trout.Grammar
 import Language.Trout.Error
 import System.Exit(exitSuccess)
@@ -157,6 +156,50 @@ evalBoolExpr (Not a) = do
     a' <- evalBoolExpr a
     return $ not a'
 
+-- Frame Handling
+
+evalFrameExpr :: FrameExpr -> TroutState [IntExpr]
+evalFrameExpr (Frame xs) =
+    if isNothing $ castVExpr $ FExpr $ Frame xs
+        then
+            return xs
+        else do
+            let (Just (VExpr i)) = castVExpr $ FExpr $ Frame xs
+            (FrameVal f) <- wrapFrame <$> evalIdentifier i
+            return $ map IntNum f
+evalFrameExpr (FrameIdentifier ident) = do
+    val <- evalFrameIdentifier ident
+    return $ map IntNum val
+evalFrameExpr (AppendFrame expr1 expr2) = do
+    val1 <- evalFrameExpr expr1
+    val2 <- evalFrameExpr expr2
+    return $ val1 ++ val2
+
+evalFrameIdentifier :: Identifier -> TroutState [Int]
+evalFrameIdentifier (Variable name) = do
+    val <- troutGetVar name FrameType
+    return $ troutGetFrameFromVarValue val
+evalFrameIdentifier _ = do
+    typeError "Only Integers can be stored in Indices"
+    return []
+
+getFrameVarValue :: [IntExpr] -> TroutState VarValue
+getFrameVarValue exprs =
+    if isNothing $ castVExpr $ FExpr $ Frame exprs
+        then do
+            ints <- reduceIntExprList exprs
+            return $ FrameVal ints
+        else do
+            let (Just (VExpr i)) = castVExpr $ FExpr $ Frame exprs
+            wrapFrame <$> evalIdentifier i
+
+reduceIntExprList :: [IntExpr] -> TroutState [Int]
+reduceIntExprList [] = return []
+reduceIntExprList (x:xs) = do
+    val <- evalIntExpr x
+    vals <- reduceIntExprList xs
+    return (val:vals)
+
 -- Stream Handling
 
 evalStreamExpr :: StreamExpr -> TroutState [[Int]]
@@ -199,8 +242,8 @@ evalStreamExpr (Iterator s ss) = do
     return s'
 
 evalIterator :: StreamExpr -> [Statement] -> TroutState [[Int]]
-evalIterator InputStream ss = evalUnbounded troutRead ss
-evalIterator InfiniteStream ss = evalUnbounded (return [1]) ss
+evalIterator InputStream ss = evalUnbounded troutRead InputStream ss
+evalIterator InfiniteStream ss = evalUnbounded (return [1]) InfiniteStream ss
 evalIterator e ss = do
     sc <- getStreamContext
     pc <- getPrintContext
@@ -224,8 +267,8 @@ evalIterator e ss = do
                     remainingSteps <- iterateOver fs stmts
                     return $ step : remainingSteps
 
-evalUnbounded :: TroutState [Int] -> [Statement] -> TroutState [[Int]]
-evalUnbounded source ss = do
+evalUnbounded :: TroutState [Int] -> StreamExpr -> [Statement] -> TroutState [[Int]]
+evalUnbounded source sourceStream ss = do
     pc <- getPrintContext
     sc <- getStreamContext
     setPrintContext (PrintContext False)
@@ -242,7 +285,7 @@ evalUnbounded source ss = do
             setPrintContext (PrintContext False)
             return [outFrame]
         else do
-            remaining <- evalIterator InputStream ss
+            remaining <- evalIterator sourceStream ss
             setStreamContext sc
             setPrintContext (PrintContext False)
             return $ outFrame : remaining
