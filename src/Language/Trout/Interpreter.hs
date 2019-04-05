@@ -159,7 +159,14 @@ evalBoolExpr (Not a) = do
 -- Frame Handling
 
 evalFrameExpr :: FrameExpr -> TroutState [IntExpr]
-evalFrameExpr (Frame xs) = return xs
+evalFrameExpr (Frame xs) = do
+    if isNothing $ castVExpr $ FExpr $ Frame xs
+        then
+            return xs
+        else do
+            let (Just (VExpr i)) = castVExpr $ FExpr $ Frame xs
+            (FrameVal f) <- wrapFrame <$> evalIdentifier i
+            return $ map IntNum f
 evalFrameExpr (FrameIdentifier ident) = do
     val <- evalFrameIdentifier ident
     return $ map IntNum val
