@@ -159,7 +159,7 @@ evalBoolExpr (Not a) = do
 -- Frame Handling
 
 evalFrameExpr :: FrameExpr -> TroutState [IntExpr]
-evalFrameExpr (Frame xs) = do
+evalFrameExpr (Frame xs) =
     if isNothing $ castVExpr $ FExpr $ Frame xs
         then
             return xs
@@ -184,7 +184,7 @@ evalFrameIdentifier _ = do
     return []
 
 getFrameVarValue :: [IntExpr] -> TroutState VarValue
-getFrameVarValue exprs = do
+getFrameVarValue exprs =
     if isNothing $ castVExpr $ FExpr $ Frame exprs
         then do
             ints <- reduceIntExprList exprs
