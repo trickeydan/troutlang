@@ -242,8 +242,8 @@ evalStreamExpr (Iterator s ss) = do
     return s'
 
 evalIterator :: StreamExpr -> [Statement] -> TroutState [[Int]]
-evalIterator InputStream ss = evalUnbounded troutRead ss
-evalIterator InfiniteStream ss = evalUnbounded (return [1]) ss
+evalIterator InputStream ss = evalUnbounded troutRead InputStream ss
+evalIterator InfiniteStream ss = evalUnbounded (return [1]) InfiniteStream ss
 evalIterator e ss = do
     sc <- getStreamContext
     pc <- getPrintContext
@@ -267,8 +267,8 @@ evalIterator e ss = do
                     remainingSteps <- iterateOver fs stmts
                     return $ step : remainingSteps
 
-evalUnbounded :: TroutState [Int] -> [Statement] -> TroutState [[Int]]
-evalUnbounded source ss = do
+evalUnbounded :: TroutState [Int] -> StreamExpr -> [Statement] -> TroutState [[Int]]
+evalUnbounded source sourceStream ss = do
     pc <- getPrintContext
     sc <- getStreamContext
     setPrintContext (PrintContext False)
@@ -285,7 +285,7 @@ evalUnbounded source ss = do
             setPrintContext (PrintContext False)
             return [outFrame]
         else do
-            remaining <- evalIterator InputStream ss
+            remaining <- evalIterator sourceStream ss
             setStreamContext sc
             setPrintContext (PrintContext False)
             return $ outFrame : remaining
