@@ -1,0 +1,12 @@
+buf = 0
+
+IN {
+  buf = [0] & buf
+  nat = 1
+  acc = 0
+  _ = buf {
+    acc = acc + ([0] * nat)
+    nat = nat + 1
+  }
+  acc
+}

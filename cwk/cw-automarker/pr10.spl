@@ -1,0 +1,9 @@
+buf1 = 0
+buf2 = 0
+
+IN {
+  result = [0] + buf2
+  buf2 = buf1
+  buf1 = result
+  result
+}
