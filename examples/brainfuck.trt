@@ -1,0 +1,107 @@
+/***********************************************************\
+
+    Brainf**k - An esoteric turing machine-like interpreter.
+    Implemented in Trout as a proof of Turing Completeness.
+
+\***********************************************************/
+
+// Variables
+program = 0
+programlength = 1
+tapesize = 300 // Theoretically infinite ;) It loops in this implementation.
+
+// Instructions
+
+mvright = 0 // > - move the pointer right
+mvleft = 1  // < - move the pointer left
+incr = 2    // + - increment the cell
+decr = 3    // - - decrement the cell
+out = 4     // . - Output the cell
+repl = 5    // , - Replace the cell with input
+lbr = 6     // [ -  jump to the matching ] instruction if the current value is zero
+rbr = 7     // ] - jump to the matching [ instruction if the current value is not zero
+
+
+// Make a blank tape.
+tape = 0
+i = tapesize
+# {
+    tape = tape, 0
+    i = i - 1
+    if(i < 0) break
+}
+
+/*
+    Main program loop.
+    Executes one instruction per press of enter key.
+*/
+addr = 0
+pc = 0
+
+IN {
+    program {instr = [pc]} // Get the instruction
+
+    // Move Pointer Right
+    if(instr == mvright) (0) {
+        addr = addr + 1
+        if(addr > tapesize - 1) addr = 0
+    }
+
+    // Move Pointer Left
+    if(instr == mvleft) (0) {
+        addr = addr - 1
+        if(addr < 0) addr = tapesize - 1
+    }
+
+    // Increment Cell
+    if(instr == incr) (0) {
+        tape {<addr> = [addr] + 1}
+    }
+
+    // Decrement Cell
+    if(instr == decr) (0) {
+        tape {<addr> = [addr] - 1}
+    }
+
+    // Print
+    if(instr == out) (0) {
+        tape {<addr>}
+    }
+
+    // Read
+    if(instr == repl) (0) {
+        data = [0] // First value from stdin
+        tape {<addr> = data}
+    }
+
+    // Left Bracket
+    if(instr == lbr) (0) {
+        tape {val = [addr]}
+        if(val == 0) (0) {
+            i = pc
+            # { // NB: This can loop if there is no right bracket
+                i = i + 1
+                program {val = [i]}
+                if(val == rbr) break
+            }
+            pc = i
+        }
+    }
+
+    // Right Bracket
+    if(instr == rbr) (0) {
+        tape {val = [addr]}
+        if(val != 0) (0) {
+            i = pc
+            # { // NB: This can loop if there is no left bracket
+                i = i - 1
+                program {val = [i]}
+                if(val == lbr) break
+            }
+            pc = i
+        }
+    }
+
+    pc = pc + 1
+    if (pc > programlength - 1) break // Check for end of program
+}
