@@ -5,21 +5,19 @@
 
 \***********************************************************/
 
-curr = 1
+// We must give the sieve of eratosthenes the first prime.
+curr = 2
+primes = 2
 
 # {
     divisorcount = 0
-    i = curr
-    # {
-        quotient = curr / i
-
-        if(quotient * i == curr) divisorcount = divisorcount + 1
-
-        i = i -1
-        if(i < 1) break
+    _ = primes {
+        quotient = curr / [0]
+        if(quotient * [0] == curr) divisorcount = divisorcount + 1
     }
-
-    if(divisorcount == 2) curr
-
+    if(divisorcount == 0) (0) {
+        curr
+        primes = primes & curr
+    }
     curr = curr + 1
 }
