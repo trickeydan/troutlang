@@ -1,0 +1,25 @@
+/***********************************************************\
+
+                    Prime Number Generator
+                     Implemented in Trout
+
+\***********************************************************/
+
+curr = 1
+
+# {
+    divisorcount = 0
+    i = curr
+    # {
+        quotient = curr / i
+
+        if(quotient * i == curr) divisorcount = divisorcount + 1
+
+        i = i -1
+        if(i < 1) break
+    }
+
+    if(divisorcount == 2) curr
+
+    curr = curr + 1
+}
