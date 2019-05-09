@@ -1,6 +1,7 @@
 # Trout Interpreter
 
 The interpreter for Trout.
+
 ### Philosophy
 
 Trout is built to be both minimal and complete. Specifically, it is meant to contain the minimal set of features to complete arbitrary tasks withing the problem domain, and to complete them well.

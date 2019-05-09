@@ -1,6 +1,0 @@
-prev = 0
-
-IN {
-  [0], prev
-  prev = [0]
-}
