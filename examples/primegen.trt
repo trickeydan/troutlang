@@ -1,0 +1,23 @@
+/***********************************************************\
+
+                    Prime Number Generator
+                     Implemented in Trout
+
+\***********************************************************/
+
+// We must give the sieve of eratosthenes the first prime.
+curr = 2
+primes = 2
+
+# {
+    divisorcount = 0
+    _ = primes {
+        quotient = curr / [0]
+        if(quotient * [0] == curr) divisorcount = divisorcount + 1
+    }
+    if(divisorcount == 0) (0) {
+        curr
+        primes = primes & curr
+    }
+    curr = curr + 1
+}
