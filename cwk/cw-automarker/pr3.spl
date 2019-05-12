@@ -1,4 +1,0 @@
-/*
-    Add values in the stream
-*/
-IN { [0] + 3 * [1] }
